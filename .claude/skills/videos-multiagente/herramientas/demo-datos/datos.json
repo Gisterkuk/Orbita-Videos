@@ -1,0 +1,147 @@
+{
+ "_nota": "Datos ficticios pero creíbles para grabar tutoriales (negocio.orbita.site, aprobados el 2026-10-12). Fotos con licencia en fotos/LICENCIAS.md. Clientes sin email: nunca se le manda un mail a nadie.",
+ "categorias": [
+  {
+   "clave": "remeras",
+   "existente": "Remeras"
+  },
+  {
+   "clave": "buzos",
+   "name": "Buzos",
+   "icon": "shirt"
+  }
+ ],
+ "productos": [
+  {
+   "clave": "remera-blanca",
+   "name": "Remera Básica Blanca",
+   "categoria": "remeras",
+   "basePrice": 15990,
+   "costo": 7200,
+   "talles": [
+    "S",
+    "M",
+    "L",
+    "XL"
+   ],
+   "stock": 8,
+   "descripcion": "Remera de algodón peinado, corte recto y cuello redondo. Va con todo.",
+   "fotos": [
+    "remera-blanca.jpg"
+   ]
+  },
+  {
+   "clave": "remera-verde",
+   "name": "Remera Verde Oliva",
+   "categoria": "remeras",
+   "basePrice": 16990,
+   "costo": 7600,
+   "talles": [
+    "S",
+    "M",
+    "L"
+   ],
+   "stock": 4,
+   "descripcion": "Algodón suave con lavado especial: no destiñe.",
+   "fotos": [
+    "remera-verde.jpg"
+   ]
+  },
+  {
+   "clave": "remeras-negras",
+   "name": "Pack x2 Remeras Negras",
+   "categoria": "remeras",
+   "basePrice": 29990,
+   "costo": 14000,
+   "talles": [
+    "S",
+    "M",
+    "L",
+    "XL"
+   ],
+   "stock": 5,
+   "descripcion": "Dos remeras negras básicas de algodón. Las que más se usan, de a dos.",
+   "fotos": [
+    "remeras-negras.jpg"
+   ]
+  },
+  {
+   "clave": "buzo-gris",
+   "name": "Buzo Canguro Gris Claro",
+   "categoria": "buzos",
+   "basePrice": 39990,
+   "costo": 19000,
+   "talles": [
+    "S",
+    "M",
+    "L",
+    "XL"
+   ],
+   "stock": 3,
+   "descripcion": "Frisa invisible, capucha amplia y bolsillo canguro.",
+   "fotos": [
+    "buzo-gris.jpg"
+   ]
+  }
+ ],
+ "clientes": [
+  {
+   "clave": "c1",
+   "firstName": "Lucía",
+   "lastName": "Ferreyra"
+  },
+  {
+   "clave": "c2",
+   "firstName": "Martín",
+   "lastName": "Sosa"
+  },
+  {
+   "clave": "c3",
+   "firstName": "Valentina",
+   "lastName": "Ruiz"
+  },
+  {
+   "clave": "c4",
+   "firstName": "Tomás",
+   "lastName": "Benítez"
+  }
+ ],
+ "pedidos": [
+  {
+   "canal": "ONLINE",
+   "items": [
+    {
+     "producto": "remeras-negras",
+     "talle": "M",
+     "cantidad": 1
+    }
+   ],
+   "pago": "TRANSFER",
+   "comprador": "Lucía Ferreyra"
+  },
+  {
+   "canal": "ONLINE",
+   "items": [
+    {
+     "producto": "buzo-gris",
+     "talle": "L",
+     "cantidad": 1
+    }
+   ],
+   "pago": "TRANSFER",
+   "comprador": "Martín Sosa"
+  },
+  {
+   "canal": "POS",
+   "items": [
+    {
+     "producto": "remera-blanca",
+     "talle": "S",
+     "cantidad": 2
+    }
+   ],
+   "pago": "CASH",
+   "comprador": "Valentina Ruiz"
+  }
+ ]
+}

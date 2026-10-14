@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Placa de pantalla</title>
+<style>html,body{margin:0;overflow:hidden;background:#fff}canvas{display:block}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// "Placa" del panel: solo el contenido de la pantalla (1440×900 px CSS) en tiempo de SALIDA
+// (esperas comprimidas, pausas por voz, scroll compensado), sin ventana, cámara, cursor ni
+// carteles. Otra herramienta (HyperFrames) dibuja todo eso encima. W×H = TL.plate.
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v)), lerp = (a, b, u) => a + (b - a) * u
+const smooth = u => u * u * u * (u * (u * 6 - 15) + 10)
+let TL, ctx, W, H, k
+function segAt(t) { const S = TL.segs; let lo = 0, hi = S.length - 1, i = 0; while (lo <= hi) { const m = (lo + hi) >> 1; if (S[m].o0 <= t) { i = m; lo = m + 1 } else hi = m - 1 } return i }
+function srcTime(t, i = segAt(t)) { const s = TL.segs[i], u = clamp((t - s.o0) / Math.max(1e-6, s.o1 - s.o0), 0, 1); return lerp(s.s0, s.s1, s.ease ? smooth(u) : u) }
+function frameAt(s) { const F = TL.frames; let lo = 0, hi = F.length - 1, i = 0; while (lo <= hi) { const m = (lo + hi) >> 1; if (F[m].s <= s + 1e-6) { i = m; lo = m + 1 } else hi = m - 1 } return F[i].f }
+const cache = new Map()
+function img(src) { let e = cache.get(src); if (!e) { const im = new Image(); im.src = src; e = { im, p: im.decode().catch(() => {}) }; cache.set(src, e); if (cache.size > 24) cache.delete(cache.keys().next().value) } return e }
+function planScroll(t, seg) {
+  const sc = TL.scrolls[seg.scroll], F = sc.frames, u = clamp((t - seg.o0) / Math.max(1e-6, seg.o1 - seg.o0), 0, 1), fr = seg.p0 != null ? lerp(seg.p0, seg.p1, u) : u, P = sc.Y * smooth(clamp(fr, 0, 1))
+  let lo = 0, hi = F.length - 1, i1 = 0; while (lo <= hi) { const m = (lo + hi) >> 1; if (F[m].P <= P) { i1 = m; lo = m + 1 } else hi = m - 1 }
+  const f1 = F[i1], n2 = F[Math.min(F.length - 1, i1 + 1)], f2 = n2.P >= P ? n2 : f1
+  return { f1, f2, d1: Math.max(0, P - f1.P), d2: Math.max(0, f2.P - P), base: (P - f1.P) <= (f2.P - P) ? f1 : f2, zona: sc.zona }
+}
+async function seek(t) {
+  const i = segAt(t), seg = TL.segs[i], s = srcTime(t, i)
+  const plan = seg.scroll != null ? planScroll(t, seg) : null
+  const A = img(plan ? plan.base.f : frameAt(s)); await A.p
+  let B = null, bA = 0, sB = 0
+  // fundido cruzado: sigue aunque el tramo con xf sea más corto que el fundido (busca hacia atrás el que lo abrió)
+  for (let j = i; j > 0 && j > i - 6; j--) { const g = TL.segs[j]; if (g.xf && t < g.o0 + g.xf) { sB = TL.segs[j - 1].s1; B = img(frameAt(sB)); bA = 1 - smooth(clamp((t - g.o0) / g.xf, 0, 1)); await B.p; break } }
+  ctx.setTransform(k, 0, 0, k, 0, 0); ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(A.im, 0, 0, 1440, 900)
+  if (plan && (plan.d1 > .01 || plan.d2 > .01)) {
+    const I1 = img(plan.f1.f), I2 = img(plan.f2.f); await I1.p; await I2.p
+    const z = plan.zona
+    ctx.save(); ctx.beginPath(); ctx.rect(z.x, z.y, z.w, z.h); ctx.clip()
+    ctx.drawImage(I2.im, 0, plan.d2, 1440, 900)
+    ctx.beginPath(); ctx.rect(z.x, z.y, z.w, plan.d2 + 1); ctx.clip()
+    ctx.drawImage(I1.im, 0, -plan.d1, 1440, 900)
+    ctx.restore()
+    for (const fz of z.fijos ?? []) { const kk = A.im.naturalWidth / 1440; ctx.drawImage(A.im, fz.x * kk, fz.y * kk, fz.w * kk, fz.h * kk, fz.x, fz.y, fz.w, fz.h) }
+  }
+  // la capa que se funde (el cuadro saliente) lleva SUS desenfoques (datos personales), no los del tramo nuevo
+  if (B && bA > 0) {
+    const oc = new OffscreenCanvas(W, H), ox = oc.getContext('2d'); ox.setTransform(k, 0, 0, k, 0, 0); ox.imageSmoothingQuality = 'high'
+    ox.drawImage(B.im, 0, 0, 1440, 900)
+    for (const d of TL.desenfoques ?? []) if (sB >= d.s0 && sB <= d.s1) desenfocar(d.box, ox)
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = bA; ctx.drawImage(oc, 0, 0); ctx.restore()
+  }
+  for (const r of TL.retoques ?? []) if (s >= r.s0 && s <= r.s1) retocar(r)
+  for (const d of TL.desenfoques ?? []) if (s >= d.s0 && s <= d.s1) desenfocar(d.box)
+  return true
+}
+// Retoque de un cuadro (px de pantalla 1440×900): borra una franja de filas corriendo hacia
+// arriba lo que hay debajo y tapa rectángulos con el color de un punto vecino del mismo cuadro
+// (así sirve también con el panel oscurecido detrás de un diálogo).
+function color(x, y) { const d = ctx.getImageData(Math.round(x * k), Math.round(y * k), 1, 1).data; return `rgb(${d[0]},${d[1]},${d[2]})` }
+function bordeMenu() {
+  // menú lateral abierto: blanco desde x=64 hasta su borde; cerrado: el fondo de la página empieza en 64
+  const y = Math.round(700 * k), x0 = Math.round(64 * k), d = ctx.getImageData(x0, y, Math.round(240 * k), 1).data
+  for (let i = 0; i < d.length / 4; i++) if (d[i * 4] < 252 || d[i * 4 + 1] < 252 || d[i * 4 + 2] < 252) return 64 + i / k
+  return 304
+}
+function retocar(r) {
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0)
+  const R = v => Math.round(v * k)
+  const tapas = (r.tapar ?? []).filter(t => r.borrar.x1 >= t.x + t.w).map(t => ({ ...t, c: color(t.mx, t.my) }))
+  if (r.borrar) {
+    const b = r.borrar, x0 = Math.max(b.x0, bordeMenu()), fondo = color(b.x1 - 6, b.hasta - 5)
+    if (b.x1 > x0) {
+      const img = ctx.getImageData(R(x0), R(b.y + b.h), R(b.x1) - R(x0), R(b.hasta) - R(b.y + b.h))
+      ctx.putImageData(img, R(x0), R(b.y))
+      ctx.fillStyle = fondo; ctx.fillRect(R(x0), R(b.hasta - b.h), R(b.x1) - R(x0), R(b.hasta) - R(b.hasta - b.h))
+    }
+  }
+  for (const t of tapas) { ctx.fillStyle = t.c; ctx.fillRect(R(t.x), R(t.y), R(t.w), R(t.h)) }
+  ctx.restore()
+}
+// Desenfoque ilegible (datos personales): pixela la zona a 1/14 y la suaviza con blur, recortado a la caja
+function desenfocar(b, cx = ctx) {
+  const X = Math.round(b.x * k), Y = Math.round(b.y * k), Wb = Math.round(b.w * k), Hb = Math.round(b.h * k)
+  const ow = Math.max(2, Math.round(Wb / 14)), oh = Math.max(2, Math.round(Hb / 14))
+  const off = new OffscreenCanvas(ow, oh), o = off.getContext('2d'); o.imageSmoothingQuality = 'high'
+  o.drawImage(cx.canvas, X, Y, Wb, Hb, 0, 0, ow, oh)
+  cx.save(); cx.setTransform(1, 0, 0, 1, 0, 0)
+  cx.beginPath(); cx.roundRect(X, Y, Wb, Hb, 10 * k); cx.clip()
+  cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high'; cx.filter = 'blur(' + Math.round(5 * k) + 'px)'
+  cx.drawImage(off, 0, 0, ow, oh, X - 6 * k, Y - 6 * k, Wb + 12 * k, Hb + 12 * k)
+  cx.restore()
+}
+async function load(tl) {
+  TL = tl; W = tl.W; H = tl.H; k = W / 1440
+  const c = document.getElementById('c'); c.width = W; c.height = H; ctx = c.getContext('2d')
+  document.body.style.width = W + 'px'; document.body.style.height = H + 'px'
+  return { W, H, D: tl.duration }
+}
+window.seek = seek; window.load = load
+</script>
+</body>
+</html>

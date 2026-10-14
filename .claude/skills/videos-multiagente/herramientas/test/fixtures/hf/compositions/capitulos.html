@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<style>
+@font-face { font-family: 'Geist'; font-weight: 100 900; src: url(assets/fonts/geist-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215; }
+@font-face { font-family: 'Geist'; font-weight: 100 900; src: url(assets/fonts/geist-latin-ext.woff2) format('woff2'); unicode-range: U+0100-024F, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F; }
+@font-face { font-family: 'Sora'; font-weight: 100 900; src: url(assets/fonts/sora-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215; }
+@font-face { font-family: 'Sora'; font-weight: 100 900; src: url(assets/fonts/sora-latin-ext.woff2) format('woff2'); unicode-range: U+0100-024F, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F; }
+#capitulos { position: absolute; inset: 0; font-family: 'Geist', sans-serif; color: #F1F5FF; -webkit-font-smoothing: antialiased; }
+
+.cap { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+.cap .kicker { padding: 12px 26px; border-radius: 999px; background: rgba(59,130,246,.22); border: 2px solid rgba(147,197,253,.55); color: #DCE8FF; font: 700 24px/1 'Geist'; letter-spacing: .16em; text-transform: uppercase; }
+.cap .tit { font: 700 96px/1.02 'Sora'; letter-spacing: -.045em; color: #FFFFFF; text-align: center; }
+.cap .sub { font: 500 34px/1.3 'Geist'; color: #C9D4EC; }
+</style>
+<div id="capitulos" data-composition-id="capitulos" data-width="1920" data-height="1080">
+
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+const E = { io: 'power2.inOut', o: 'power3.out', o5: 'expo.out', i: 'power2.in' };
+const C = [];
+for (const c of C) {
+  tl.fromTo('#' + c.id + '-k', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .5, ease: E.o }, c.o0 + .2);
+  tl.fromTo('#' + c.id + '-t', { opacity: 0, y: 50, scale: .95 }, { opacity: 1, y: 0, scale: 1, duration: .65, ease: E.o5 }, c.o0 + .3);
+  tl.fromTo('#' + c.id + '-s', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .5, ease: E.o }, c.o0 + .5);
+  tl.to('#' + c.id + '-c', { opacity: 0, y: -30, duration: .4, ease: E.i }, c.o1 - .45);
+}
+window.__timelines["capitulos"] = tl;
+</script>
+</template>
+</body></html>

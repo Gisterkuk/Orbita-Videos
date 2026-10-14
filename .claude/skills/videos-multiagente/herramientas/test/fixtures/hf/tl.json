@@ -1,0 +1,6 @@
+{ "duration": 10, "intro": 3.6, "outro": 2, "endTitle": "Listo.",
+  "segs": [ { "o0": 0, "o1": 10, "s0": 0, "s1": 10 } ], "urls": [ { "s": 0, "u": "negocio.orbita.site/admin" } ],
+  "cam": [ { "t": 4, "d": 1, "x": 300, "y": 200, "z": 1.5 } ],
+  "caps": [ { "o0": 4, "o1": 6, "n": 1, "txt": "Uno", "sub": "El primero" }, { "o0": 6, "o1": 8, "n": 2, "txt": "Dos" } ],
+  "hl": [ { "o0": 5, "o1": 6, "boxes": [ { "t": 5, "x": 100, "y": 100, "w": 200, "h": 80 } ] } ],
+  "cur": [ { "t": 0, "d": 0.1, "x": 10, "y": 10 } ], "curVis": [], "clicks": [], "dialogos": [], "capitulos": [] }

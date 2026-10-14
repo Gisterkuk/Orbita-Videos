@@ -1,0 +1,12 @@
+node_modules/
+# medios pesados: tomas, renders y entregas viven en ~/orbita-videos o se comparten aparte
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.webm
+marketing/videos/
+out/
+renders/
+tomas/
+.superpowers/

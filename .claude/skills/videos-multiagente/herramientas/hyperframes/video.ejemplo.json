@@ -1,0 +1,13 @@
+{
+ "src": "<slug>",
+ "repo": "C:/dev/GitHub/Orbita-Videos",
+ "codigoOrbita": "C:/dev/GitHub/Orbita-Frontend",
+ "tl": "compose/tl-voz.json",
+ "tiempos": "out/voz-tiempos.json",
+ "voz": "voz.json",
+ "placa": "assets/placa.mp4",
+ "sfx": "assets/sfx.wav",
+ "titulo": "Conocé tu panel",
+ "lista": [ { "n": 1, "t": "Panel y tienda" }, { "n": 2, "t": "El menú" } ],
+ "recreaciones": [ { "o0": 30.2, "o1": 34.0, "etiqueta": "Así lo ve un Empleado", "html": "<div>…</div>" } ]
+}

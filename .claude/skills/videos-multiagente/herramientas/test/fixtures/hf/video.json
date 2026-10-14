@@ -1,0 +1,11 @@
+{
+ "src": ".",
+ "tl": "tl.json",
+ "tiempos": "voz-tiempos.json",
+ "voz": "voz.json",
+ "placa": "assets/placa.mp4",
+ "sfx": "assets/sfx.wav",
+ "titulo": "Prueba",
+ "lista": [ { "n": 1, "t": "Uno" }, { "n": 2, "t": "Dos" } ],
+ "recreaciones": [ { "o0": 1, "o1": 3, "etiqueta": "Así lo ve un Empleado", "html": "<div>menú</div>" } ]
+}
