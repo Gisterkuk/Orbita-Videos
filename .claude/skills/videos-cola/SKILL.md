@@ -18,7 +18,7 @@ El panorama completo (propósito, costos, controles) está en `docs/marketing/FL
 ## Antes de empezar
 1. **El conector.** Tienen que estar las herramientas `videos_listar`, `videos_pedir_subida` y `videos_registrar`
    (el conector «Órbita», el mismo de la prospección). Si no están, decile a la persona cómo agregarlo (Claude →
-   Configuración → Conectores → «Agregar conector personalizado», dirección `https://api.orbita.site/api/v1/mcp/prospeccion`,
+   Configuración → Conectores → «Agregar conector personalizado», dirección `https://api.orbita.site/api/v1/mcp`,
    y autorizar con su cuenta de la organización) y **frená**: no hay forma de seguir sin él.
 2. **Leé** `marketing/CONTEXTO.md` y `marketing/CLAUDE.md` (qué se puede decir, qué no) y `marketing/guiones/banco-de-ganchos.md`.
 3. **Mirá la cola** con `videos_listar`: títulos y ganchos ya hechos (no repetir) y cuántos esperan revisión. La cola
@@ -73,7 +73,11 @@ El panorama completo (propósito, costos, controles) está en `docs/marketing/FL
    Si el conector dice que **la cola está llena**, frená y avisá: hay que revisar la cola antes de generar más.
 
 ## Cuando termina la tanda
-Informá en un solo mensaje, corto: cuántos subiste y cuántos descartaste (con el motivo), el título y el id de cada uno,
+Llamá a **`videos_avisar`** una sola vez, después de registrar el último video: le manda un correo al equipo (superadmins
+con correo `@orbita.site` u `@orbita-corp.com`) diciendo que hay videos para aprobar. Es un correo por tanda: el sistema no
+repite si ya avisó, y su texto es fijo (no escribas nada). Si no subiste ninguno, no lo llames.
+
+Después informá en un solo mensaje, corto: cuántos subiste y cuántos descartaste (con el motivo), el título y el id de cada uno,
 qué controles fallaron, **lo que gastaste en voz** y cuánto queda por revisar. Recordá dónde se aprueban:
 **Superadmin → Marketing → Videos** (`orbita.site/superadmin?seccion=marketing`). **No digas que está publicado**:
 quedó en la cola, esperando a una persona.
