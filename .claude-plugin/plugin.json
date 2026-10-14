@@ -1,0 +1,25 @@
+{
+  "name": "orbita-videos",
+  "version": "1.0.0",
+  "description": "Videos de Órbita para la cola de aprobación: skills de producción, agentes y el conector de Órbita ya configurado.",
+  "author": { "name": "Órbita" },
+  "repository": "https://github.com/Gisterkuk/Orbita-Videos",
+  "skills": [
+    "./.claude/skills/videos-cola",
+    "./.claude/skills/videos-multiagente"
+  ],
+  "agents": [
+    "./.claude/agents/analista-video.md",
+    "./.claude/agents/editor-video.md",
+    "./.claude/agents/espectador-mudo.md",
+    "./.claude/agents/guionista-video.md",
+    "./.claude/agents/juez-guion.md",
+    "./.claude/agents/supervisor-video.md"
+  ],
+  "mcpServers": {
+    "orbita": {
+      "type": "http",
+      "url": "https://api.orbita.site/api/v1/mcp"
+    }
+  }
+}

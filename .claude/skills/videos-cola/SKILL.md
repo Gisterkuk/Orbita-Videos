@@ -20,11 +20,20 @@ El panorama completo (propósito, costos, controles) está en `docs/marketing/FL
 > los controles automáticos. Para un tutorial del panel real, un video a medida o algo que necesite música elegida a
 > oído, usá `videos-multiagente`.
 
+## Dónde están los archivos
+Esta skill viene en el plugin **orbita-videos** y puede correr desde **cualquier carpeta** (no hace falta clonar el repo). Todo lo que
+esta skill y sus agentes nombran con ruta relativa del repo (`marketing/…`, `.claude/skills/videos-multiagente/…`,
+`.claude/agents/…`, `herramientas/…`) está bajo **`${CLAUDE_PLUGIN_ROOT}`**: leelo desde ahí, y al delegar en un agente pasale la ruta
+completa. Esa carpeta es de solo lectura (se regenera al actualizar): **todo lo que produzcas va en `~/orbita-videos/cola/<fecha>_<slug>/`**
+(copiá ahí `marketing/hyperframes-reel/` y el `ejemplo-promo/` que vayas a usar, y corré las herramientas por su ruta completa).
+Si en cambio la persona abrió el repo Orbita-Videos con Claude Code (sin el plugin), `${CLAUDE_PLUGIN_ROOT}` no está definido y esas rutas son las
+del propio repo: reemplazalo por la carpeta del repo en los comandos de abajo.
+
 ## Antes de empezar
 1. **El conector.** Tienen que estar las herramientas `videos_listar`, `videos_pedir_subida` y `videos_registrar`
-   (el conector «Órbita», el mismo de la prospección). Si no están, decile a la persona cómo agregarlo (Claude →
-   Configuración → Conectores → «Agregar conector personalizado», dirección `https://api.orbita.site/api/v1/mcp`,
-   y autorizar con su cuenta de la organización) y **frená**: no hay forma de seguir sin él.
+   (el conector «Órbita», el mismo de la prospección). Con el plugin ya viene configurado: si todavía no está autorizado, que la persona
+   escriba `/mcp`, elija **orbita** y **Authenticate** (se abre el login del panel: cuenta de la organización y «Autorizar»). Si no hay
+   plugin, se agrega a mano (dirección `https://api.orbita.site/api/v1/mcp`). **Frená** hasta que esté: no hay forma de seguir sin él.
 2. **Leé** `marketing/CONTEXTO.md` y `marketing/CLAUDE.md` (qué se puede decir, qué no) y `marketing/guiones/banco-de-ganchos.md`.
 3. **Mirá la cola** con `videos_listar`: títulos y ganchos ya hechos (no repetir) y cuántos esperan revisión. La cola
    admite 20 entre subiendo y pendientes; si está llena, avisá y no sigas.
@@ -56,13 +65,13 @@ El panorama completo (propósito, costos, controles) está en `docs/marketing/FL
 3. **Edición y render** del reel (`editar-reel.mjs` del ejemplo, `qa/huecos.mjs`, `mezclar-promo.mjs`, `render.mjs`).
 4. **Dejarlo en el formato de la cola:**
    ```
-   node .claude/skills/videos-cola/herramientas/preparar.mjs <render.mp4> <listo.mp4> --max-mb 45
+   node "${CLAUDE_PLUGIN_ROOT}/.claude/skills/videos-cola/herramientas/preparar.mjs" <render.mp4> <listo.mp4> --max-mb 45
    ```
    (H.264 + AAC con el índice al principio. **No hay tope de peso**: si ya es un mp4 no lo recomprime. Si querés mandarlo por chat y que
    pese menos, agregá `--max-mb 45`.)
 5. **Controles de calidad:**
    ```
-   node .claude/skills/videos-cola/herramientas/controles.mjs <listo.mp4> --formato REEL_9_16
+   node "${CLAUDE_PLUGIN_ROOT}/.claude/skills/videos-cola/herramientas/controles.mjs" <listo.mp4> --formato REEL_9_16
    ```
    Devuelve `[{ nombre, ok, detalle }]`: formato, duración, peso (solo se informa: no hay tope), volumen (−17,5 a −12,5 LUFS, pico ≤ −1 dBFS),
    silencios, tramos en negro e imagen congelada. Si falla **formato o duración**, arreglalo (hasta 2 intentos) y
@@ -70,7 +79,7 @@ El panorama completo (propósito, costos, controles) está en `docs/marketing/FL
    **con el control fallado a la vista**: el panel lo marca para que la persona lo mire con atención.
 6. **Subir y registrar:**
    1. `videos_pedir_subida` con `bytes` = el tamaño exacto del `listo.mp4` (y `tipo`: MARKETING por defecto) → devuelve `videoId` y `uploadUrl`.
-   2. `node .claude/skills/videos-cola/herramientas/subir.mjs <listo.mp4> "<uploadUrl>"` (la dirección es una
+   2. `node "${CLAUDE_PLUGIN_ROOT}/.claude/skills/videos-cola/herramientas/subir.mjs" <listo.mp4> "<uploadUrl>"` (la dirección es una
       credencial de 10 minutos: no la pegues en ningún archivo ni la repitas en el informe).
    3. `videos_registrar` con `video` (el videoId), `titulo` (≤ 120, corto y descriptivo), `formato`, `guion` (la voz,
       una frase por línea), `caption` (el texto para la publicación, con 3–5 hashtags, ≤ 2200, voseo, sin competidores),

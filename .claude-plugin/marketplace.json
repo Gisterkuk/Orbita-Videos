@@ -1,0 +1,16 @@
+{
+  "name": "orbita-videos",
+  "owner": {
+    "name": "Órbita"
+  },
+  "plugins": [
+    {
+      "name": "orbita-videos",
+      "source": "./",
+      "description": "Videos de Órbita para la cola de aprobación: skills, agentes y el conector de Órbita."
+    }
+  ],
+  "metadata": {
+    "description": "Plugin de videos de Órbita (skills, agentes y conector)."
+  }
+}
