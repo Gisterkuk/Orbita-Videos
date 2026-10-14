@@ -30,6 +30,9 @@ Si en cambio la persona abrió el repo Orbita-Videos con Claude Code (sin el plu
 del propio repo: reemplazalo por la carpeta del repo en los comandos de abajo.
 
 ## Antes de empezar
+0. **Requisitos de la PC.** Verificá `node --version` (22 o superior) y `ffmpeg -version`. Si falta alguno, explicale a la persona
+   qué es y ofrecé instalarlo (winget en Windows, brew en Mac, apt en Linux), **pidiendo permiso antes de cada instalación**.
+   HyperFrames se baja solo con `npx`. Si la persona no quiere instalar, frená: sin eso no se puede renderizar.
 1. **El conector.** Tienen que estar las herramientas `videos_listar`, `videos_pedir_subida` y `videos_registrar`
    (el conector «Órbita», el mismo de la prospección). Con el plugin ya viene configurado: si todavía no está autorizado, que la persona
    escriba `/mcp`, elija **orbita** y **Authenticate** (se abre el login del panel: cuenta de la organización y «Autorizar»). Si no hay
