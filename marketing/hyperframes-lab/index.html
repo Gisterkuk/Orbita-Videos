@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <!-- Hook de Órbita, tramo 1 (capítulos 01–03). Guion: marketing/guiones/2026-10-07_hook-orbita.md -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/MotionPathPlugin.min.js"></script>
+    <script src="assets/vendor/motion-blur.js"></script>
+    <style>
+      @font-face { font-family: "Sora"; src: url("assets/fonts/sora-latin.woff2") format("woff2"); font-weight: 100 800; }
+      @font-face { font-family: "Geist"; src: url("assets/fonts/geist-latin.woff2") format("woff2"); font-weight: 100 900; }
+      @font-face { font-family: "Geist Mono"; src: url("assets/fonts/geist-mono-latin.woff2") format("woff2"); font-weight: 100 900; }
+
+      :root {
+        --noche: #0a1432;
+        --azul: #2563eb;
+        --celeste: #bfdbfe;
+        --hueso: #f8fafc;
+        --satelite: #ff6b3d;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; overflow: hidden; background: var(--noche); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+      .escena { position: absolute; inset: 0; overflow: hidden; }
+      #camara { position: absolute; inset: 0; }
+      .lente { position: absolute; inset: 0; }
+      .tipo-fondo { position: absolute; left: 0; width: 3600px; height: 440px; }
+      #vineta { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(2, 6, 23, 0.13) 100%); }
+      #grano { position: absolute; inset: 0; overflow: hidden; pointer-events: none; mix-blend-mode: overlay; opacity: 0.22; }
+      #grano i { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+      /* Marcas de "sistema" en las esquinas */
+      .hud { position: absolute; font: 500 15px/1 "Geist Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+      .hud.si { top: 36px; left: 44px; }
+      .hud.sd { top: 36px; right: 44px; }
+      .hud.ii { bottom: 36px; left: 44px; }
+      .hud.id { bottom: 36px; right: 44px; }
+      .claro .hud { color: #e9f0fd; }
+      .oscuro .hud { color: #3f4a61; }
+
+      /* 01 · Lanzamiento */
+      #s1 { background: var(--noche); }
+      #horizonte { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+      #sat1 { position: absolute; left: 0; top: 0; width: 72px; height: 72px; }
+      #sat1-cuerpo { width: 72px; height: 72px; border-radius: 50%; background: var(--satelite); box-shadow: 0 0 26px rgba(255, 107, 61, 0.75), 0 0 80px rgba(255, 107, 61, 0.32); }
+      .estela { position: absolute; left: 0; top: 0; width: 6px; height: 6px; border-radius: 50%; background: rgba(248, 250, 252, 0.9); opacity: 0; }
+      .chispa { position: absolute; width: 3px; height: 22px; }
+      .chispa i { display: block; width: 3px; height: 22px; border-radius: 2px; background: rgba(248, 250, 252, 0.85); opacity: 0; }
+
+      /* 02 · Tu tienda */
+      #s2 { background: var(--azul); }
+      .golpe { position: absolute; left: 130px; font: 800 250px/1 "Sora", sans-serif; letter-spacing: -0.045em; white-space: nowrap; }
+      #l1 { top: 250px; color: var(--noche); }
+      #l2 { top: 530px; color: var(--hueso); display: flex; align-items: flex-end; }
+      #punto-slot { width: 92px; height: 200px; position: relative; }
+      #sat2 { position: absolute; left: 22px; bottom: 26px; width: 64px; height: 64px; border-radius: 50%; background: var(--satelite); }
+
+      /* 03 · Productos */
+      #s3 { background: var(--hueso); }
+      #escenario { position: absolute; left: 770px; top: 330px; width: 380px; height: 380px; }
+      /* Abanico: cartas de producto detrás de la del centro */
+      .carta { position: absolute; left: 770px; top: 330px; width: 380px; height: 380px; border-radius: 30px; background: #fff; padding: 22px; box-shadow: 0 30px 60px rgba(37, 99, 235, 0.2); }
+      .carta .img { height: 196px; border-radius: 22px; display: flex; align-items: center; justify-content: center; }
+      .carta .nom { margin-top: 18px; font: 600 27px/1.1 "Geist", sans-serif; color: var(--noche); }
+      .carta .pre { margin-top: 10px; font: 700 52px/60px "Sora", sans-serif; color: var(--noche); letter-spacing: -0.02em; }
+      #forma { position: absolute; inset: 0; border-radius: 190px; background: var(--satelite); overflow: hidden; box-shadow: 0 30px 60px rgba(37, 99, 235, 0.18); }
+      #contenido { position: absolute; inset: 0; padding: 22px; opacity: 0; }
+      #foto { height: 196px; border-radius: 22px; background: linear-gradient(150deg, #ffd9c7, #ff8a5f); display: flex; align-items: center; justify-content: center; }
+      #nombre { margin-top: 18px; font: 600 27px/1.1 "Geist", sans-serif; color: var(--noche); }
+      #precio { margin-top: 10px; display: flex; align-items: flex-start; font: 700 52px/60px "Sora", sans-serif; color: var(--noche); letter-spacing: -0.02em; }
+      .dig { display: block; height: 60px; overflow: hidden; }
+      .tira { display: block; }
+      .tira span { display: block; height: 60px; }
+
+      #guia { position: absolute; left: 748px; top: 308px; width: 424px; height: 424px; border: 1.5px solid rgba(37, 99, 235, 0.45); opacity: 0; }
+      .asa { position: absolute; width: 12px; height: 12px; background: var(--hueso); border: 1.5px solid var(--azul); }
+      .asa.a1 { left: -7px; top: -7px; } .asa.a2 { right: -7px; top: -7px; }
+      .asa.a3 { left: -7px; bottom: -7px; } .asa.a4 { right: -7px; bottom: -7px; }
+      .rotulo { position: absolute; left: 0; top: -30px; font: 500 15px/1 "Geist Mono", monospace; letter-spacing: 0.08em; color: var(--azul); white-space: nowrap; }
+      #rotulo-b { opacity: 0; }
+
+      /* 04 · Cobros: la misma tarjeta (corte por coincidencia) gira y muestra el cobro */
+      #s4 { background: var(--azul); }
+      #tarjeta4 { position: absolute; left: 770px; top: 330px; width: 380px; height: 380px; transform-style: preserve-3d; }
+      .cara { position: absolute; inset: 0; border-radius: 30px; background: #fff; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 40px 80px rgba(10, 20, 50, 0.25); }
+      .cara.frente { padding: 22px; }
+      .cara.dorso { transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+      .precio-fijo { margin-top: 10px; font: 700 52px/60px "Sora", sans-serif; color: var(--noche); letter-spacing: -0.02em; }
+      #check { width: 132px; height: 132px; border-radius: 50%; background: var(--satelite); display: flex; align-items: center; justify-content: center; }
+      #cobras { font: 700 44px/1 "Sora", sans-serif; color: var(--noche); letter-spacing: -0.02em; }
+      #aprobado { font: 500 23px/1 "Geist", sans-serif; color: #4e5b73; }
+      #wipe { position: absolute; left: 888px; top: 396px; width: 144px; height: 144px; border-radius: 50%; background: var(--satelite); opacity: 0; }
+      .chispa7 { position: absolute; left: 1585px; top: 389px; width: 14px; height: 14px; border-radius: 50%; background: var(--satelite); opacity: 0; }
+
+      /* 05 · Pedidos */
+      #s5 { background: var(--satelite); }
+      .punto-grilla { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.35); }
+      .notif { position: absolute; left: 600px; top: 330px; width: 720px; height: 116px; border-radius: 24px; background: #fff; display: flex; align-items: center; gap: 26px; padding: 0 34px; box-shadow: 0 24px 50px rgba(120, 30, 0, 0.28); opacity: 0; }
+      .notif .pin { width: 30px; height: 30px; border-radius: 50%; background: var(--satelite); box-shadow: 0 0 0 8px rgba(255, 107, 61, 0.2); flex: none; }
+      .notif b { display: block; font: 700 32px/1.1 "Sora", sans-serif; color: var(--noche); letter-spacing: -0.01em; }
+      .notif span { display: block; margin-top: 6px; font: 500 22px/1 "Geist", sans-serif; color: #4e5b73; }
+      .notif em { margin-left: auto; font: 500 18px/1 "Geist Mono", monospace; font-style: normal; color: #4e5b73; }
+
+      /* 06 · Orbi */
+      #s6 { background: var(--noche); }
+      #ramas { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+      #ramas path { fill: none; stroke: #93c5fd; stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(147, 197, 253, 0.85)); }
+      #sat6 { position: absolute; left: 0; top: 0; width: 38px; height: 38px; border-radius: 50%; background: var(--satelite); box-shadow: 0 0 22px rgba(255, 107, 61, 0.9), 0 0 70px rgba(255, 107, 61, 0.4); }
+      .sat6b { position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--satelite); box-shadow: 0 0 16px rgba(255, 107, 61, 0.9); opacity: 0; }
+      .chip { position: absolute; left: 1290px; width: 380px; height: 78px; border-radius: 22px; background: rgba(248, 250, 252, 0.09); border: 1.5px solid rgba(248, 250, 252, 0.28); display: flex; align-items: center; justify-content: space-between; padding: 0 22px 0 30px; font: 600 31px/1 "Geist", sans-serif; color: var(--hueso); opacity: 0; }
+      .chip b { width: 40px; height: 40px; border-radius: 50%; background: var(--satelite); display: flex; align-items: center; justify-content: center; }
+      #resalte { position: relative; display: inline-block; isolation: isolate; }
+      #caja { position: absolute; left: -16px; right: -16px; top: 8px; bottom: 0; border-radius: 14px; background: var(--azul); z-index: -1; transform-origin: 0 50%; }
+      #orbi-pill { position: absolute; left: 0; right: 0; top: 110px; margin: 0 auto; width: 190px; height: 58px; border-radius: 999px; background: rgba(248, 250, 252, 0.1); border: 1.5px solid rgba(248, 250, 252, 0.3); display: flex; align-items: center; justify-content: center; gap: 12px; font: 600 26px/1 "Geist", sans-serif; color: var(--hueso); opacity: 0; }
+      #orbi-pill i { width: 18px; height: 18px; border-radius: 50%; background: var(--satelite); box-shadow: 0 0 18px rgba(255, 107, 61, 0.8); }
+      #orbi-texto { position: absolute; left: 0; right: 0; top: 196px; text-align: center; font: 700 88px/1.12 "Sora", sans-serif; letter-spacing: -0.03em; color: var(--hueso); }
+      #orbi-texto .ch { opacity: 0; }
+
+      /* 07 · Panel */
+      #s7 { background: var(--hueso); }
+      .tarjeta-panel { position: absolute; background: #fff; border-radius: 28px; box-shadow: 0 30px 70px rgba(37, 99, 235, 0.16); border: 1px solid rgba(37, 99, 235, 0.08); }
+      #cpub { left: 250px; top: 380px; width: 560px; height: 320px; padding: 44px; }
+      #cventas { left: 900px; top: 260px; width: 770px; height: 560px; padding: 44px; }
+      .tit-panel { font: 600 32px/1 "Geist", sans-serif; color: var(--noche); }
+      #fila-pub { margin-top: 56px; display: flex; align-items: center; gap: 30px; }
+      #pista { position: relative; width: 160px; height: 86px; border-radius: 999px; background: var(--noche); }
+      #perilla { position: absolute; left: 11px; top: 11px; width: 64px; height: 64px; border-radius: 50%; background: #fff; }
+      .estado { position: absolute; font: 600 30px/1 "Geist", sans-serif; }
+      #estado-a { color: #4e5b73; }
+      #estado-b { color: var(--azul); opacity: 0; }
+      #estados { position: relative; width: 220px; height: 34px; }
+      #barras { position: absolute; left: 44px; right: 44px; bottom: 84px; height: 340px; display: flex; align-items: flex-end; gap: 34px; }
+      .barra { flex: 1; border-radius: 12px 12px 6px 6px; background: var(--azul); transform-origin: 50% 100%; }
+      .barra.ultima { background: var(--satelite); }
+      #dias { position: absolute; left: 44px; right: 44px; bottom: 40px; display: flex; gap: 34px; }
+      #dias span { flex: 1; text-align: center; font: 500 20px/1 "Geist Mono", monospace; color: #4e5b73; }
+      #cursor { position: absolute; left: 0; top: 0; width: 44px; height: 54px; }
+      #clic { position: absolute; left: 0; top: 0; width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--azul); opacity: 0; }
+
+      /* 08 · Tu rubro */
+      #s8 { background: var(--celeste); }
+      .rubro { position: absolute; left: 0; right: 0; top: 560px; text-align: center; font: 800 170px/1 "Sora", sans-serif; letter-spacing: -0.045em; color: var(--noche); opacity: 0; white-space: nowrap; }
+      .tile8 { position: absolute; left: 870px; top: 250px; width: 180px; height: 180px; border-radius: 46px; background: #fff; box-shadow: 0 30px 60px rgba(37, 99, 235, 0.22); display: flex; align-items: center; justify-content: center; opacity: 0; }
+      #sat8 { position: absolute; left: 0; top: 0; width: 46px; height: 46px; border-radius: 50%; background: var(--satelite); }
+
+      /* 09 · Órbita */
+      #s9 {
+        background:
+          radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.5), transparent 45%),
+          radial-gradient(circle at 90% 95%, rgba(59, 130, 246, 0.35), transparent 45%),
+          linear-gradient(158deg, #0c1a3d, #0a1432 55%, #060b1e);
+      }
+      #firma { position: absolute; left: 0; right: 0; top: 300px; display: flex; align-items: center; justify-content: center; gap: 98px; }
+      #logo { position: relative; width: 256px; height: 256px; flex: none; }
+      #logo svg { position: absolute; left: 0; top: 0; width: 256px; height: 256px; overflow: visible; }
+      #logo-gira { position: absolute; inset: 0; }
+      #rotador { position: absolute; inset: 0; }
+      #sat9o, #sat9 { position: absolute; left: 96px; width: 64px; height: 64px; border-radius: 50%; background: var(--satelite); box-shadow: 0 0 26px rgba(255, 107, 61, 0.75), 0 0 80px rgba(255, 107, 61, 0.3); }
+      #sat9o { top: -28px; opacity: 0; }
+      #sat9 { top: 96px; }
+      #planeta { position: absolute; left: 84.5px; top: 84.5px; width: 87px; height: 87px; border-radius: 50%; background: #3b82f6; box-shadow: 0 0 77px rgba(59, 130, 246, 0.45); }
+      .pulso { position: absolute; left: 94px; top: 94px; width: 68px; height: 68px; border-radius: 50%; border: 2px solid rgba(147, 197, 253, 0.6); opacity: 0; }
+      #marca { font: 900 167px/1 "Geist", sans-serif; letter-spacing: -0.02em; color: #fff; opacity: 0; }
+      #bajada { position: absolute; left: 0; right: 0; top: 640px; text-align: center; font: 500 42px/1.2 "Geist", sans-serif; color: #e9f0fd; opacity: 0; }
+      #pildora { position: absolute; left: 0; right: 0; top: 740px; margin: 0 auto; width: 290px; height: 72px; border-radius: 999px; background: #eff6ff; color: #1d4ed8; display: flex; align-items: center; justify-content: center; font: 600 36px/1 "Geist", sans-serif; opacity: 0; }
+      #pie { position: absolute; left: 44px; right: 44px; top: 948px; display: flex; justify-content: space-between; padding-top: 16px; font: 500 15px/1 "Geist Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #e9f0fd; opacity: 0; }
+      #pie-linea { position: absolute; left: 44px; right: 44px; top: 948px; height: 1.5px; background: rgba(233, 240, 253, 0.6); transform-origin: 0 50%; }
+      #medidas { position: absolute; right: 0; bottom: -30px; font: 500 15px/1 "Geist Mono", monospace; letter-spacing: 0.06em; color: #4e5b73; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="15" data-fps="60" data-width="1920" data-height="1080">
+      <div id="camara">
+      <!-- 01 · LANZAMIENTO -->
+      <div id="s1" class="escena clip claro" data-start="0" data-duration="1.5" data-track-index="0">
+        <svg id="horizonte" viewBox="0 0 1920 1080">
+          <path id="linea" d="M 410 780 Q 960 780 1510 780" fill="none" stroke="rgba(248,250,252,0.55)" stroke-width="2" />
+        </svg>
+        <div id="estelas"></div>
+        <div id="chispas"></div>
+        <div id="sat1" data-hf-motion-blur='{"samplesPerFrame": 10}'><div id="sat1-cuerpo"></div></div>
+        <div class="hud si">Órbita</div>
+        <div class="hud sd">©2026</div>
+        <div class="hud ii">01 · Lanzamiento</div>
+        <div class="hud id">0,0 — 1,5 s</div>
+      </div>
+
+      <!-- 02 · TU TIENDA -->
+      <div id="s2" class="escena clip claro" data-start="1.5" data-duration="1.5" data-track-index="1">
+        <div id="l1" data-layout-allow-overflow class="golpe" data-hf-motion-blur='{"samplesPerFrame": 10}'>TU TIENDA</div>
+        <div id="l2" data-layout-allow-overflow class="golpe" data-hf-motion-blur='{"samplesPerFrame": 10}'><span>ONLINE</span><span id="punto-slot"><span id="sat2"></span></span></div>
+        <div class="hud si">Órbita</div>
+        <div class="hud sd">©2026</div>
+        <div class="hud ii">02 · Tu tienda</div>
+        <div class="hud id">1,5 — 3,0 s</div>
+      </div>
+
+      <!-- 03 · PRODUCTOS -->
+      <div id="s3" class="escena clip oscuro" data-start="3" data-duration="1.5" data-track-index="2">
+        <div id="abanico3"></div>
+        <div id="escenario">
+          <div id="forma">
+            <div id="contenido">
+              <div id="foto">
+                <svg width="120" height="110" viewBox="0 0 120 110" aria-hidden="true">
+                  <path d="M18 22 h70 v52 a26 26 0 0 1 -26 26 h-18 a26 26 0 0 1 -26 -26 z" fill="#fff" />
+                  <path d="M88 34 h8 a14 14 0 0 1 0 28 h-8" fill="none" stroke="#fff" stroke-width="9" />
+                </svg>
+              </div>
+              <div id="nombre">Taza de cerámica</div>
+              <div id="precio">
+                <span>$&nbsp;</span>
+                <span class="dig"><span class="tira" id="d1"></span></span>
+                <span class="dig"><span class="tira" id="d2"></span></span>
+                <span>.</span>
+                <span class="dig"><span class="tira" id="d3"></span></span>
+                <span class="dig"><span class="tira" id="d4"></span></span>
+                <span class="dig"><span class="tira" id="d5"></span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="guia" data-layout-allow-overflow>
+          <i class="asa a1"></i><i class="asa a2"></i><i class="asa a3"></i><i class="asa a4"></i>
+          <div class="rotulo" id="rotulo-a">SATÉLITE</div>
+          <div class="rotulo" id="rotulo-b">PRODUCTO · TARJETA</div>
+          <div id="medidas">380 × 380</div>
+        </div>
+        <div class="hud si">Órbita</div>
+        <div class="hud sd">©2026</div>
+        <div class="hud ii">03 · Productos</div>
+        <div class="hud id">3,0 — 4,5 s</div>
+      </div>
+
+      <!-- 04 · COBROS -->
+      <div id="s4" class="escena clip claro" data-start="4.5" data-duration="1.5" data-track-index="3">
+        <div id="abanico4"></div>
+        <div id="tarjeta4">
+          <div class="cara frente">
+            <div id="foto4" style="height: 196px; border-radius: 22px; background: linear-gradient(150deg, #ffd9c7, #ff8a5f); display: flex; align-items: center; justify-content: center">
+              <svg width="120" height="110" viewBox="0 0 120 110" aria-hidden="true">
+                <path d="M18 22 h70 v52 a26 26 0 0 1 -26 26 h-18 a26 26 0 0 1 -26 -26 z" fill="#fff" />
+                <path d="M88 34 h8 a14 14 0 0 1 0 28 h-8" fill="none" stroke="#fff" stroke-width="9" />
+              </svg>
+            </div>
+            <div style="margin-top: 18px; font: 600 27px/1.1 'Geist', sans-serif; color: #0a1432">Taza de cerámica</div>
+            <div class="precio-fijo">$&nbsp;12.500</div>
+          </div>
+          <div class="cara dorso">
+            <div id="check">
+              <svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true">
+                <path id="trazo-check" d="M18 40 L32 53 L58 24" pathLength="1" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 1" stroke-dashoffset="1" />
+              </svg>
+            </div>
+            <div id="cobras">Cobrás online</div>
+            <div id="aprobado">Pago aprobado · $ 12.500</div>
+          </div>
+        </div>
+        <div class="hud si">Órbita</div>
+        <div class="hud sd">©2026</div>
+        <div id="wipe"></div>
+        <div class="hud ii">04 · Cobros</div>
+        <div class="hud id">4,5 — 6,0 s</div>
+      </div>
+
+      <!-- 05 · PEDIDOS -->
+      <div id="s5" class="escena clip oscuro" data-start="6" data-duration="1.5" data-track-index="4">
+        <div id="grilla"></div>
+        <div id="n1" class="notif"><i class="pin"></i><div><b>Nuevo pedido #1042</b><span>Taza de cerámica · $ 12.500</span></div><em>AHORA</em></div>
+        <div id="n2" class="notif"><i class="pin"></i><div><b>Nuevo pedido #1043</b><span>Mate de calabaza · $ 18.900</span></div><em>AHORA</em></div>
+        <div id="n3" class="notif"><i class="pin"></i><div><b>Nuevo pedido #1044</b><span>Set de bowls · $ 24.300</span></div><em>AHORA</em></div>
+        <div class="hud si">Órbita</div>
+        <div class="hud sd">©2026</div>
+        <div class="hud ii">05 · Pedidos</div>
+        <div class="hud id">6,0 — 7,5 s</div>
+      </div>
+
+      <!-- 06 · ORBI -->
+      <div id="s6" class="escena clip claro" data-start="7.5" data-duration="1.5" data-track-index="5">
+        <svg id="ramas" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path id="rama0" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" d="M -60 790 C 60 730, 140 850, 260 790 S 460 730, 580 790 S 740 850, 840 790" />
+          <path id="rama1" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" d="M 840 790 C 1010 790, 1080 640, 1270 640" />
+          <path id="rama2" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" d="M 840 790 C 1010 790, 1090 790, 1270 790" />
+          <path id="rama3" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" d="M 840 790 C 1010 790, 1080 940, 1270 940" />
+        </svg>
+        <div class="chip" id="chip1" style="top: 601px">Descripción<b><svg width="22" height="22" viewBox="0 0 22 22"><path d="M5 11.5 L9.5 16 L17 7" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></div>
+        <div class="chip" id="chip2" style="top: 751px">Categoría<b><svg width="22" height="22" viewBox="0 0 22 22"><path d="M5 11.5 L9.5 16 L17 7" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></div>
+        <div class="chip" id="chip3" style="top: 901px">Etiquetas<b><svg width="22" height="22" viewBox="0 0 22 22"><path d="M5 11.5 L9.5 16 L17 7" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></div>
+        <i class="sat6b" id="sb1"></i><i class="sat6b" id="sb2"></i><i class="sat6b" id="sb3"></i>
+        <div id="sat6"></div>
+        <div id="orbi-pill"><i></i>Orbi</div>
+        <div id="orbi-texto"></div>
+        <div class="hud si">Órbita</div>
+        <div class="hud sd">©2026</div>
+        <div class="hud ii">06 · Orbi</div>
+        <div class="hud id">7,5 — 9,0 s</div>
+      </div>
+
+      <!-- 07 · PANEL -->
+      <div id="s7" class="escena clip oscuro" data-start="9" data-duration="1.5" data-track-index="6">
+        <div id="cpub" class="tarjeta-panel">
+          <div class="tit-panel">Tu tienda</div>
+          <div id="fila-pub">
+            <div id="pista"><div id="perilla"></div></div>
+            <div id="estados"><span id="estado-a" class="estado">Borrador</span><span id="estado-b" class="estado">Publicada</span></div>
+          </div>
+        </div>
+        <div id="cventas" class="tarjeta-panel">
+          <div class="tit-panel">Ventas de la semana</div>
+          <div id="barras">
+            <i class="barra" style="height: 34%"></i><i class="barra" style="height: 50%"></i><i class="barra" style="height: 42%"></i>
+            <i class="barra" style="height: 62%"></i><i class="barra" style="height: 56%"></i><i class="barra" style="height: 78%"></i>
+            <i class="barra ultima" style="height: 100%"></i>
+          </div>
+          <div id="dias"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+        </div>
+        <div id="clic"></div>
+        <div id="chispas7"></div>
+        <svg id="cursor" viewBox="0 0 44 54" aria-hidden="true">
+          <path d="M4 3 L4 42 L14 32 L21 49 L28 46 L21 30 L36 30 Z" fill="#0a1432" stroke="#fff" stroke-width="3" stroke-linejoin="round" />
+        </svg>
+        <div class="hud si">Órbita</div>
+        <div class="hud sd">©2026</div>
+        <div class="hud ii">07 · Panel</div>
+        <div class="hud id">9,0 — 10,5 s</div>
+      </div>
+
+      <!-- 08 · TU RUBRO -->
+      <div id="s8" class="escena clip oscuro" data-start="10.5" data-duration="1.5" data-track-index="7">
+        <div class="tile8" id="tr1"><svg width="112" height="112" viewBox="0 0 120 120"><rect x="40" y="42" width="14" height="66" rx="6" fill="#0a1432"/><path d="M14 24 a6 6 0 0 1 6 -6 h52 v28 h-52 a6 6 0 0 1 -6 -6 z" fill="#2563eb"/><path d="M72 20 q22 -2 34 -14 q0 26 -34 38 z" fill="#2563eb"/></svg></div>
+        <div class="rubro" id="r1">FERRETERÍA</div>
+        <div class="tile8" id="tr2"><svg width="112" height="112" viewBox="0 0 120 120"><ellipse cx="60" cy="80" rx="25" ry="21" fill="#0a1432"/><circle cx="28" cy="54" r="11" fill="#2563eb"/><circle cx="47" cy="34" r="11" fill="#2563eb"/><circle cx="73" cy="34" r="11" fill="#2563eb"/><circle cx="92" cy="54" r="11" fill="#2563eb"/></svg></div>
+        <div class="rubro" id="r2">PET SHOP</div>
+        <div class="tile8" id="tr3"><svg width="118" height="108" viewBox="0 0 120 110"><path d="M42 14 L22 22 L8 46 L26 54 L30 44 L30 100 L90 100 L90 44 L94 54 L112 46 L98 22 L78 14 Q60 32 42 14 Z" fill="#2563eb"/></svg></div>
+        <div class="rubro" id="r3">INDUMENTARIA</div>
+        <div class="tile8" id="tr4"><svg width="112" height="112" viewBox="0 0 120 120"><path d="M52 10 h16 v24 q14 8 14 26 v46 a6 6 0 0 1 -6 6 h-32 a6 6 0 0 1 -6 -6 v-46 q0 -18 14 -26 z" fill="#0a1432"/><rect x="38" y="62" width="44" height="26" rx="3" fill="#2563eb"/></svg></div>
+        <div class="rubro" id="r4">BODEGA</div>
+        <div class="tile8" id="tr5"><svg width="118" height="112" viewBox="0 0 120 120"><path d="M12 30 q24 -10 46 6 v68 q-22 -14 -46 -6 z" fill="#2563eb"/><path d="M108 30 q-24 -10 -46 6 v68 q22 -14 46 -6 z" fill="#0a1432"/></svg></div>
+        <div class="rubro" id="r5">LIBRERÍA</div>
+        <div id="sat8"></div>
+        <div class="hud si">Órbita</div>
+        <div class="hud sd">©2026</div>
+        <div class="hud ii">08 · Tu rubro</div>
+        <div class="hud id">10,5 — 12,0 s</div>
+      </div>
+
+      <!-- 09 · ÓRBITA: la pelota entra en órbita y arma el logo -->
+      <div id="s9" class="escena clip claro" data-start="12" data-duration="3" data-track-index="8">
+        <div id="firma">
+          <div id="logo">
+            <i class="pulso" id="p1"></i><i class="pulso" id="p2"></i>
+            <div id="logo-gira">
+              <svg viewBox="0 0 256 256" aria-hidden="true">
+                <circle id="arco" cx="128" cy="128" r="123.5" fill="none" stroke="rgba(59,130,246,0.4)" stroke-width="9" transform="rotate(-90 128 128)" stroke-dasharray="0 775.97" stroke-dashoffset="-581.98" />
+              </svg>
+            </div>
+            <i id="planeta"></i>
+            <div id="rotador"><i id="sat9o"></i></div>
+            <i id="sat9"></i>
+          </div>
+          <div id="marca" data-hf-motion-blur='{"samplesPerFrame": 10}'>Órbita</div>
+        </div>
+        <div id="bajada">Tu tienda propia. Sin comisión por venta.</div>
+        <div id="pildora">orbita.site</div>
+        <div id="pie-linea" data-fijo></div>
+        <div id="pie" data-fijo><span>Tienda · Cobros · Pedidos · Panel · Orbi</span><span>15 s · 900 cuadros · 60 fps</span><span>©2026</span></div>
+      </div>
+
+      </div>
+      <div id="vineta"></div>
+      <div id="grano"><i></i></div>
+
+      <audio id="sfx" src="assets/audio/sfx.wav" data-start="0" data-duration="15" data-track-index="9" data-volume="0.87"></audio>
+    </div>
+
+    <script>
+      document.fonts.ready.then(() => {
+        gsap.registerPlugin(MotionPathPlugin);
+        const tl = gsap.timeline({ paused: true });
+
+        // ---------- Cámara: deriva "en mano" sobre todo el video + acercamiento lento por capítulo ----------
+        tl.set("#camara", { scale: 1.025 }, 0);
+        tl.fromTo("#camara", { x: -7 }, { x: 7, duration: 1.9, ease: "sine.inOut", yoyo: true, repeat: 7 }, 0);
+        tl.fromTo("#camara", { y: -5 }, { y: 5, duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: 5 }, 0);
+        tl.fromTo("#camara", { rotation: -0.22 }, { rotation: 0.22, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: 4 }, 0);
+        const lente = (id, t0, dur, hasta) => {
+          const escena = document.getElementById(id);
+          const l = document.createElement("div");
+          l.className = "lente";
+          l.id = `lente-${id}`;
+          [...escena.children].filter((c) => !c.classList.contains("hud") && !c.hasAttribute("data-fijo")).forEach((c) => l.appendChild(c));
+          escena.insertBefore(l, escena.firstChild);
+          tl.fromTo(l, { scale: 1 }, { scale: hasta, duration: dur, ease: "none" }, t0);
+        };
+        lente("s3", 3.0, 1.5, 1.05);
+        lente("s4", 4.5, 1.5, 1.03);
+        lente("s5", 6.0, 1.5, 1.06);
+        lente("s6", 7.5, 1.5, 1.05);
+        lente("s7", 9.0, 1.5, 1.05);
+        lente("s9", 12.0, 3.0, 1.04);
+
+        // ---------- Tipografía gigante de fondo (en canvas: es decoración, no texto a leer) ----------
+        const tipoFondo = (id, palabra, color, t0, desde, hasta) => {
+          const c = document.createElement("canvas");
+          c.className = "tipo-fondo";
+          c.width = 3600; c.height = 440;
+          c.style.top = "320px";
+          const g = c.getContext("2d");
+          g.font = '800 380px "Sora"';
+          g.letterSpacing = "-15px";
+          g.fillStyle = color;
+          g.textBaseline = "middle";
+          g.fillText(`${palabra}  ·  ${palabra}  ·  ${palabra}  ·  ${palabra}`, 0, 230);
+          const escena = document.getElementById(id);
+          escena.insertBefore(c, escena.firstChild);
+          tl.fromTo(c, { x: desde }, { x: hasta, duration: 1.5, ease: "none" }, t0);
+        };
+        tipoFondo("s4", "COBRÁ", "rgba(255,255,255,0.1)", 4.5, -150, -850);
+        tipoFondo("s5", "VENDÉ", "rgba(255,255,255,0.17)", 6.0, -950, -250);
+        tipoFondo("s7", "PUBLICÁ", "rgba(37,99,235,0.09)", 9.0, -150, -850);
+
+        // Grano de película: la textura salta a una posición distinta 12 veces por segundo (determinístico)
+        for (let k = 0; k < 180; k++) {
+          tl.set("#grano i", { x: ((k * 37) % 100) - 50, y: ((k * 53) % 100) - 50 }, k / 12);
+        }
+
+
+        // ---------- 01 · Lanzamiento ----------
+        // Trayectoria del satélite (centro). Piso: y = 744 (borde inferior en la línea, y = 780).
+        const PISO = 744;
+        const tramos = [
+          // [t0, t1, x0, x1, y0, y1, ease]
+          [0.0, 0.4, 900, 940, -90, PISO, "power2.in"],
+          [0.4, 0.59, 940, 975, PISO, 444, "power2.out"],
+          [0.59, 0.78, 975, 1010, 444, PISO, "power2.in"],
+          [0.78, 0.92, 1010, 1035, PISO, 574, "power2.out"],
+          [0.92, 1.06, 1035, 1060, 574, PISO, "power2.in"],
+          [1.06, 1.16, 1060, 1075, PISO, 664, "power2.out"],
+          [1.16, 1.26, 1075, 1090, 664, PISO, "power2.in"],
+        ];
+        const posEn = (t) => {
+          for (const [t0, t1, x0, x1, y0, y1, e] of tramos) {
+            if (t >= t0 && t <= t1) {
+              const p = (t - t0) / (t1 - t0);
+              return [x0 + (x1 - x0) * p, y0 + (y1 - y0) * gsap.parseEase(e)(p)];
+            }
+          }
+          return [1090, PISO];
+        };
+
+        tl.set("#sat1", { x: 900 - 36, y: -90 - 36 }, 0);
+        for (const [t0, t1, , x1, , y1, e] of tramos) {
+          tl.to("#sat1", { x: x1 - 36, duration: t1 - t0, ease: "none" }, t0);
+          tl.to("#sat1", { y: y1 - 36, duration: t1 - t0, ease: e }, t0);
+        }
+        // Estirar y aplastar en cada impacto (fuerza decreciente)
+        const impactos = [[0.4, 1], [0.78, 0.75], [1.06, 0.6], [1.26, 0.35]];
+        tl.set("#sat1-cuerpo", { transformOrigin: "50% 100%" }, 0);
+        tl.set("#sat1-cuerpo", { scaleX: 0.85, scaleY: 1.2 }, 0);
+        for (const [t, f] of impactos) {
+          tl.to("#sat1-cuerpo", { scaleX: 1 + 0.42 * f, scaleY: 1 - 0.36 * f, duration: 0.05, ease: "power2.out" }, t - 0.02);
+          tl.to("#sat1-cuerpo", { scaleX: 1 - 0.1 * f, scaleY: 1 + 0.16 * f, duration: 0.09, ease: "power2.inOut" }, t + 0.03);
+          tl.to("#sat1-cuerpo", { scaleX: 1, scaleY: 1, duration: 0.12, ease: "power2.out" }, t + 0.12);
+          // la línea cede bajo el impacto
+          const [xi] = posEn(t);
+          tl.to("#linea", { attr: { d: `M 410 780 Q ${xi} ${780 + 34 * f} 1510 780` }, duration: 0.06, ease: "power2.out" }, t - 0.01);
+          tl.to("#linea", { attr: { d: `M 410 780 Q ${xi} 780 1510 780` }, duration: 0.5, ease: "elastic.out(1, 0.35)" }, t + 0.05);
+        }
+        // Chispas en cada impacto
+        const chispas = document.getElementById("chispas");
+        impactos.forEach(([t, f], n) => {
+          const [xi] = posEn(t);
+          [-160, -128, -100, -80, -52, -20].forEach((ang, k) => {
+            const o = document.createElement("div");
+            o.className = "chispa";
+            o.style.left = `${xi - 1.5}px`;
+            o.style.top = `${780 - 11}px`;
+            o.style.transform = `rotate(${ang + 90}deg)`;
+            o.style.transformOrigin = "50% 50%";
+            const i = document.createElement("i");
+            i.id = `ch-${n}-${k}`;
+            o.appendChild(i);
+            chispas.appendChild(o);
+            tl.fromTo(i, { y: -10, scaleY: 0.4, opacity: 0.9 * f }, { y: -46 - 30 * f, scaleY: 1, opacity: 0, duration: 0.32, ease: "power2.out", immediateRender: false }, t);
+          });
+        });
+        // Estela punteada
+        const estelas = document.getElementById("estelas");
+        for (let t = 0.05; t <= 1.24; t += 1 / 30) {
+          const [x, y] = posEn(t);
+          const e = document.createElement("div");
+          e.className = "estela";
+          e.style.left = `${x - 3}px`;
+          e.style.top = `${y - 3}px`;
+          estelas.appendChild(e);
+          tl.fromTo(e, { opacity: 0.6 }, { opacity: 0, duration: 0.55, ease: "power1.in", immediateRender: false }, t);
+        }
+        // Anticipación y salida disparada hacia arriba
+        tl.to("#sat1-cuerpo", { scaleX: 1.25, scaleY: 0.72, duration: 0.07, ease: "power2.in" }, 1.3);
+        tl.to("#sat1-cuerpo", { scaleX: 0.7, scaleY: 1.45, duration: 0.08, ease: "power2.out" }, 1.37);
+        tl.to("#sat1", { y: -260, duration: 0.13, ease: "power3.in" }, 1.37);
+
+        // ---------- 02 · Tu tienda ----------
+        tl.fromTo("#l1", { x: -1700 }, { x: 0, duration: 0.34, ease: "expo.out" }, 1.56);
+        tl.fromTo("#l2", { x: 1700 }, { x: 0, duration: 0.34, ease: "expo.out" }, 1.84);
+        // El satélite cae desde arriba y se vuelve el punto final
+        tl.fromTo("#sat2", { y: -820 }, { y: 0, duration: 0.42, ease: "bounce.out" }, 2.1);
+        tl.set("#sat2", { transformOrigin: "50% 100%" }, 2.1);
+        tl.to("#sat2", { scaleX: 1.3, scaleY: 0.75, duration: 0.05, ease: "power2.out" }, 2.25);
+        tl.to("#sat2", { scaleX: 1, scaleY: 1, duration: 0.18, ease: "back.out(3)" }, 2.3);
+        // Whip de salida hacia la izquierda
+        tl.to("#l1", { x: -2300, duration: 0.24, ease: "power3.in" }, 2.72);
+        tl.to("#l2", { x: -2300, duration: 0.24, ease: "power3.in" }, 2.76);
+
+        // ---------- 03 · Productos ----------
+        tl.fromTo("#forma", { scale: 0.17 }, { scale: 1, duration: 0.42, ease: "back.out(1.8)" }, 3.0);
+        tl.fromTo("#guia", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, 3.16);
+        // Morph: círculo -> tarjeta, capas que se desfasan detrás
+        tl.to("#forma", { borderRadius: 30, backgroundColor: "#ffffff", duration: 0.34, ease: "power3.inOut" }, 3.48);
+        // Abanico de productos: salen de atrás de la taza y se abren en arco
+        const ICONOS = {
+          auriculares: '<path d="M22 70 v-14 a38 38 0 0 1 76 0 v14" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/><rect x="14" y="62" width="22" height="36" rx="9" fill="#fff"/><rect x="84" y="62" width="22" height="36" rx="9" fill="#fff"/>',
+          remera: '<path d="M42 14 L22 22 L8 46 L26 54 L30 44 L30 100 L90 100 L90 44 L94 54 L112 46 L98 22 L78 14 Q60 32 42 14 Z" fill="#fff"/>',
+          celular: '<rect x="36" y="6" width="48" height="98" rx="12" fill="none" stroke="#fff" stroke-width="7"/><rect x="51" y="14" width="18" height="6" rx="3" fill="#fff"/>',
+          zapatillas: '<path d="M8 74 Q10 48 30 44 L52 60 Q74 70 98 70 Q112 72 112 86 L112 92 L8 92 Z" fill="#fff"/><path d="M8 98 L112 98" stroke="#fff" stroke-width="6" stroke-linecap="round"/>',
+        };
+        const PRODUCTOS = [
+          { k: -2, nom: "Auriculares", pre: "$ 39.900", ico: "auriculares", fondo: "linear-gradient(150deg, #dbe7ff, #7aa2ff)" },
+          { k: -1, nom: "Remera básica", pre: "$ 15.900", ico: "remera", fondo: "linear-gradient(150deg, #c7d2fe, #4f6bd8)" },
+          { k: 1, nom: "Celular", pre: "$ 389.900", ico: "celular", fondo: "linear-gradient(150deg, #334155, #0a1432)" },
+          { k: 2, nom: "Zapatillas", pre: "$ 64.000", ico: "zapatillas", fondo: "linear-gradient(150deg, #fef3c7, #f2b84b)" },
+        ];
+        const ABANICO = { "-2": [-560, 80, -15, 0.8], "-1": [-295, 24, -7.5, 0.9], "1": [295, 24, 7.5, 0.9], "2": [560, 80, 15, 0.8] };
+        const armarAbanico = (contenedor, prefijo) =>
+          [...PRODUCTOS].sort((a, b) => Math.abs(b.k) - Math.abs(a.k)).map((p) => {
+            const c = document.createElement("div");
+            c.className = "carta";
+            if (p.k > 0) c.style.textAlign = "right"; // del lado derecho se ve el borde derecho de la carta
+            c.id = `${prefijo}${p.k < 0 ? "i" : "d"}${Math.abs(p.k)}`;
+            c.innerHTML = `<div class="img" style="background:${p.fondo}"><svg width="120" height="110" viewBox="0 0 120 110" aria-hidden="true">${ICONOS[p.ico]}</svg></div><div class="nom">${p.nom}</div><div class="pre">${p.pre.replace(" ", "&nbsp;")}</div>`;
+            contenedor.appendChild(c);
+            return { el: c, p };
+          });
+        armarAbanico(document.getElementById("abanico3"), "a3").forEach(({ el, p }) => {
+          const [x, y, r, sc] = ABANICO[p.k];
+          const orden = Math.abs(p.k) === 1 ? 0 : 1;
+          const t = 3.88 + orden * 0.1 + (p.k > 0 ? 0.05 : 0);
+          tl.fromTo(el, { x: 0, y: 30, rotation: 0, scale: 0.7, transformOrigin: "50% 100%" }, { x, y, rotation: r, scale: sc, duration: 0.42, ease: "back.out(1.6)" }, t);
+        });
+        // Antes de abrirse, las cartas esperan escondidas detrás de la taza
+        tl.set("#abanico3", { opacity: 0 }, 0);
+        tl.set("#abanico3", { opacity: 1 }, 3.86);
+        tl.fromTo("#forma", { rotation: 0 }, { rotation: -3, duration: 0.2, ease: "power2.out", immediateRender: false }, 3.48);
+        tl.to("#forma", { rotation: 0, duration: 0.3, ease: "back.out(3)" }, 3.68);
+        tl.to("#rotulo-a", { opacity: 0, duration: 0.1 }, 3.5);
+        tl.to("#rotulo-b", { opacity: 1, duration: 0.1 }, 3.56);
+        tl.fromTo("#contenido", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.24, ease: "power2.out" }, 3.74);
+        tl.to("#guia", { opacity: 0, duration: 0.25, ease: "none" }, 4.15);
+
+        // Precio con rodillos: $ 12.500
+        const objetivo = [1, 2, 5, 0, 0];
+        // Sora tiene números de ancho variable: cada rodillo toma el ancho de su dígito final.
+        // (se mide con canvas: la escena 3 todavía está oculta cuando se arma el timeline)
+        const ctx = document.createElement("canvas").getContext("2d");
+        ctx.font = '700 52px "Sora"';
+        const anchos = objetivo.map((d) => ctx.measureText(String(d)).width - 1.04);
+        objetivo.forEach((d, k) => {
+          const tira = document.getElementById(`d${k + 1}`);
+          tira.parentElement.style.width = `${anchos[k]}px`;
+          tira.style.textAlign = "center";
+          for (let v = 0; v < 20; v++) {
+            const s = document.createElement("span");
+            s.textContent = String(v % 10);
+            tira.appendChild(s);
+          }
+          tl.fromTo(tira, { y: 0 }, { y: -(10 + d) * 60, duration: 0.5 - k * 0.03, ease: "power3.out" }, 3.82 + k * 0.035);
+        });
+
+        // ---------- 04 · Cobros ----------
+        // Corte por coincidencia: el abanico sigue en su lugar, cambia el fondo y las cartas salen volando
+        armarAbanico(document.getElementById("abanico4"), "a4").forEach(({ el, p }) => {
+          const [x, y, r, sc] = ABANICO[p.k];
+          tl.fromTo(el, { x, y, rotation: r, scale: sc, transformOrigin: "50% 100%" }, { x: x * 4.2, y: y + 900, rotation: r * 3, scale: sc, duration: 0.34, ease: "power3.in" }, 4.5 + (Math.abs(p.k) === 1 ? 0.04 : 0));
+          tl.set(el, { opacity: 0 }, 4.9);
+        });
+        tl.fromTo("#tarjeta4", { rotationY: 0, transformPerspective: 1600 }, { rotationY: 180, duration: 0.42, ease: "power3.inOut" }, 4.6);
+        tl.fromTo("#tarjeta4", { scale: 1 }, { scale: 1.1, duration: 0.95, ease: "power1.out", immediateRender: false }, 5.02);
+        tl.set("#s4 .cara.frente", { opacity: 0 }, 4.81); // a 90° del giro ya no se ve: se apaga
+        tl.fromTo("#check", { scale: 0.5 }, { scale: 1, duration: 0.3, ease: "back.out(2.2)", immediateRender: false }, 4.96);
+        tl.to("#trazo-check", { attr: { "stroke-dashoffset": 0 }, duration: 0.24, ease: "power2.out" }, 5.04);
+        tl.fromTo("#cobras", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.22, ease: "power2.out" }, 5.12);
+        tl.fromTo("#aprobado", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.22, ease: "power2.out" }, 5.22);
+        // El círculo del ✓ crece hasta llenar la pantalla: así entra el coral de Pedidos
+        tl.set("#wipe", { opacity: 1 }, 5.72);
+        tl.fromTo("#wipe", { scale: 1 }, { scale: 17, duration: 0.28, ease: "power3.in", immediateRender: false }, 5.72);
+
+        // ---------- 05 · Pedidos ----------
+        const grilla = document.getElementById("grilla");
+        for (let fila = 0; fila < 14; fila++) {
+          for (let col = 0; col < 24; col++) {
+            const x = 40 + col * 80, y = 20 + fila * 80;
+            const p = document.createElement("i");
+            p.className = "punto-grilla";
+            p.style.left = `${x - 5}px`;
+            p.style.top = `${y - 5}px`;
+            grilla.appendChild(p);
+            const t = 6.02 + Math.hypot(x - 960, y - 540) / 1700;
+            tl.fromTo(p, { scale: 1, backgroundColor: "rgba(255,255,255,0.35)" }, { scale: 2.3, backgroundColor: "rgba(255,255,255,0.95)", duration: 0.16, ease: "power2.out", immediateRender: false }, t);
+            tl.to(p, { scale: 1, backgroundColor: "rgba(255,255,255,0.35)", duration: 0.5, ease: "power2.inOut" }, t + 0.16);
+          }
+        }
+        const entra = (sel, t) => tl.fromTo(sel, { y: -70, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.32, ease: "back.out(1.7)", immediateRender: false }, t);
+        const baja = (sel, y, t) => tl.to(sel, { y, opacity: 0.82, duration: 0.3, ease: "power3.out" }, t);
+        entra("#n1", 6.2);
+        baja("#n1", 140, 6.56); entra("#n2", 6.56);
+        baja("#n1", 280, 6.92); baja("#n2", 140, 6.92); entra("#n3", 6.92);
+
+        // ---------- 06 · Orbi ----------
+        // El satélite (con brillo) dibuja una línea que se abre en tres ramas: lo que Orbi completa.
+        const RAMA0 = "M -60 790 C 60 730, 140 850, 260 790 S 460 730, 580 790 S 740 850, 840 790";
+        const RAMAS = [
+          "M 840 790 C 1010 790, 1080 640, 1270 640",
+          "M 840 790 C 1010 790, 1090 790, 1270 790",
+          "M 840 790 C 1010 790, 1080 940, 1270 940",
+        ];
+        tl.set("#sat6, .sat6b", { xPercent: -50, yPercent: -50 }, 0);
+        tl.fromTo("#sat6", { x: -60, y: 790 }, { motionPath: { path: RAMA0 }, duration: 0.5, ease: "power1.inOut", immediateRender: false }, 7.5);
+        tl.set("#sat6", { x: -60, y: 790 }, 0);
+        tl.fromTo("#rama0", { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.5, ease: "power1.inOut", immediateRender: false }, 7.5);
+        tl.to("#sat6", { scale: 1.5, duration: 0.08, ease: "power2.out" }, 8.0);
+        tl.to("#sat6", { scale: 1, duration: 0.3, ease: "back.out(3)" }, 8.08);
+        RAMAS.forEach((d, k) => {
+          const t = 8.0 + k * 0.04;
+          tl.set(`#sb${k + 1}`, { opacity: 1, x: 840, y: 790 }, t);
+          tl.to(`#sb${k + 1}`, { motionPath: { path: d }, duration: 0.3, ease: "power2.out" }, t);
+          tl.fromTo(`#rama${k + 1}`, { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out", immediateRender: false }, t);
+          tl.to(`#sb${k + 1}`, { scale: 0, duration: 0.1 }, t + 0.3);
+          tl.fromTo(`#chip${k + 1}`, { opacity: 0, x: -24, scale: 0.92 }, { opacity: 1, x: 0, scale: 1, duration: 0.26, ease: "back.out(2)", immediateRender: false }, t + 0.27);
+          tl.fromTo(`#chip${k + 1} b`, { scale: 0 }, { scale: 1, duration: 0.22, ease: "back.out(3)", immediateRender: false }, t + 0.33);
+        });
+        tl.fromTo("#orbi-pill", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.26, ease: "back.out(2)", immediateRender: false }, 7.56);
+        // Texto tipeado; "cargar" se resalta con una caja azul que barre de izquierda a derecha
+        const texto = document.getElementById("orbi-texto");
+        let n = 0;
+        const letra = (padre, ch) => {
+          const sp = document.createElement("span");
+          sp.className = "ch";
+          sp.textContent = ch;
+          padre.appendChild(sp);
+          tl.set(sp, { opacity: 1 }, 7.62 + n * 0.016);
+          n++;
+        };
+        const r1 = document.createElement("div");
+        for (const ch of "Orbi te ayuda a ") letra(r1, ch);
+        const resalte = document.createElement("span");
+        resalte.id = "resalte";
+        resalte.innerHTML = '<i id="caja"></i>';
+        for (const ch of "cargar") letra(resalte, ch);
+        r1.appendChild(resalte);
+        texto.appendChild(r1);
+        const r2 = document.createElement("div");
+        for (const ch of "tus productos.") letra(r2, ch);
+        texto.appendChild(r2);
+        tl.fromTo("#caja", { scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: "power3.out" }, 8.22);
+        tl.to("#orbi-pill i", { scale: 1.7, duration: 0.1, ease: "power2.out" }, 8.5);
+        tl.to("#orbi-pill i", { scale: 1, duration: 0.3, ease: "back.out(3)" }, 8.6);
+
+        // ---------- 07 · Panel ----------
+        tl.fromTo(".tarjeta-panel", { opacity: 0, y: 60, rotationX: 38, transformPerspective: 1400, transformOrigin: "50% 100%" }, { opacity: 1, y: 0, rotationX: 0, duration: 0.42, ease: "back.out(1.4)", stagger: 0.07, immediateRender: false }, 9.0);
+        tl.fromTo("#cursor", { x: 1500, y: 980 }, { x: 339, y: 556, duration: 0.28, ease: "power3.inOut", immediateRender: false }, 9.04);
+        tl.to("#cursor", { scale: 0.85, duration: 0.05 }, 9.3);
+        tl.to("#cursor", { scale: 1, duration: 0.1 }, 9.36);
+        tl.set("#clic", { x: 292, y: 510 }, 0);
+        tl.fromTo("#clic", { scale: 0.3, opacity: 1 }, { scale: 1.4, opacity: 0, duration: 0.4, ease: "power2.out", immediateRender: false }, 9.32);
+        tl.to("#perilla", { x: 74, backgroundColor: "#ff6b3d", duration: 0.24, ease: "back.out(2)" }, 9.34);
+        tl.to("#pista", { backgroundColor: "#2563eb", duration: 0.18, ease: "none" }, 9.34);
+        tl.to("#estado-a", { opacity: 0, duration: 0.08 }, 9.4);
+        tl.fromTo("#estado-b", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.2, ease: "power2.out", immediateRender: false }, 9.42);
+        tl.to("#cursor", { x: 560, y: 690, duration: 0.4, ease: "power2.inOut" }, 9.55);
+        document.querySelectorAll(".barra").forEach((b, k) => {
+          tl.fromTo(b, { scaleY: 0 }, { scaleY: 1, duration: 0.36, ease: "back.out(1.4)" }, 9.55 + k * 0.075);
+        });
+
+        // La barra coral (la mejor del día) suelta un estallido de satélites
+        const chispas7 = document.getElementById("chispas7");
+        for (let k = 0; k < 10; k++) {
+          const c = document.createElement("i");
+          c.className = "chispa7";
+          chispas7.appendChild(c);
+          const ang = (-170 + k * 17.8) * (Math.PI / 180);
+          const dist = 80 + (k % 3) * 22;
+          tl.fromTo(c, { x: 0, y: 0, scale: 1, opacity: 1 }, { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist, scale: 0.2, opacity: 0, duration: 0.5, ease: "power2.out", immediateRender: false }, 10.06);
+        }
+
+        // ---------- 08 · Tu rubro ----------
+        const fondo8 = document.createElement("div");
+        fondo8.id = "fondo8";
+        fondo8.style.cssText = "position:absolute;inset:0;background:#bfdbfe";
+        const s8 = document.getElementById("s8");
+        s8.insertBefore(fondo8, s8.firstChild);
+        // Cada rubro: su ícono gira, la palabra golpea y el satélite salta a ser su punto final
+        const medir = document.createElement("canvas").getContext("2d");
+        medir.font = '800 170px "Sora"';
+        medir.letterSpacing = `${-0.045 * 170}px`;
+        const PALABRAS = ["FERRETERÍA", "PET SHOP", "INDUMENTARIA", "BODEGA", "LIBRERÍA"];
+        const puntos = PALABRAS.map((w) => [960 + medir.measureText(w).width / 2 + 8, 560 + 128]);
+        tl.set("#sat8", { x: puntos[0][0], y: puntos[0][1] - 23, scale: 0 }, 0);
+        ["#bfdbfe", "#f8fafc", "#bfdbfe", "#f8fafc", "#bfdbfe"].forEach((color, k) => {
+          const t = 10.5 + k * 0.3;
+          const id = `#r${k + 1}`, tile = `#tr${k + 1}`;
+          tl.set("#fondo8", { backgroundColor: color }, t);
+          tl.set([id, tile], { opacity: 1 }, t);
+          if (k < 4) tl.set([id, tile], { opacity: 0 }, t + 0.3);
+          tl.fromTo(id, { scale: 1.12 }, { scale: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, t);
+          tl.fromTo(tile, { rotationY: -100, scale: 0.75, transformPerspective: 700 }, { rotationY: 0, scale: 1, duration: 0.24, ease: "back.out(1.8)", immediateRender: false }, t);
+          const [px, py] = puntos[k];
+          if (k === 0) {
+            tl.to("#sat8", { scale: 1, duration: 0.18, ease: "back.out(3)" }, t + 0.06);
+          } else {
+            tl.to("#sat8", { x: px, duration: 0.14, ease: "power1.inOut" }, t - 0.02);
+            tl.to("#sat8", { y: py - 23 - 90, duration: 0.07, ease: "power2.out" }, t - 0.02);
+            tl.to("#sat8", { y: py - 23, duration: 0.07, ease: "power2.in" }, t + 0.05);
+          }
+        });
+
+        // ---------- 09 · Órbita: la pelota arma el logo de la página (OrbitaLogo) ----------
+        // Cae sobre el planeta (que aparece con el golpe), sale despedida hacia las 9 en punto y da una vuelta
+        // completa en sentido horario dibujando el anillo detrás. Al terminar se achica y toma el color del
+        // satélite del logo (#93c5fd), y queda girando como en la web: una vuelta cada 3,2 s.
+        const C = 775.97;
+        tl.fromTo("#planeta", { scale: 0 }, { scale: 1, duration: 0.36, ease: "back.out(2.5)", immediateRender: false }, 12.3);
+        tl.set("#planeta", { scale: 0 }, 0);
+        tl.fromTo("#sat9", { x: 0, y: -900 }, { y: -75.5, duration: 0.3, ease: "power2.in", immediateRender: false }, 12.0);
+        tl.to("#sat9", { x: -124, duration: 0.22, ease: "power1.out" }, 12.3);
+        tl.to("#sat9", { y: -170, duration: 0.11, ease: "power2.out" }, 12.3);
+        tl.to("#sat9", { y: 0, duration: 0.11, ease: "power2.in" }, 12.41);
+        tl.set("#sat9", { opacity: 0 }, 12.52);
+        tl.set("#sat9o", { opacity: 1 }, 12.52);
+        tl.set("#rotador", { rotation: 270 }, 0);
+        tl.fromTo("#rotador", { rotation: 270 }, { rotation: 630, duration: 0.58, ease: "power2.out", immediateRender: false }, 12.52);
+        // El anillo crece detrás del satélite: arranca a las 9 (offset = -3/4 de la circunferencia) y se cierra
+        tl.fromTo("#arco", { attr: { "stroke-dasharray": `0 ${C}` } }, { attr: { "stroke-dasharray": `${C} 0` }, duration: 0.58, ease: "power2.out", immediateRender: false }, 12.52);
+        tl.to("#sat9o", { scale: 44 / 64, backgroundColor: "#93c5fd", boxShadow: "0 0 8px rgba(147,197,253,0.8), 0 0 0px rgba(147,197,253,0)", duration: 0.3, ease: "power2.inOut" }, 12.9);
+        // Giro del logo de la web (3,2 s por vuelta = 112,5°/s): arranca suave y sigue parejo hasta el final
+        tl.to("#rotador", { rotation: 690, duration: 1.07, ease: "power1.in" }, 13.1);
+        tl.to("#rotador", { rotation: 690 + 112.5 * 0.83, duration: 0.83, ease: "none" }, 14.17);
+        tl.fromTo("#p1", { opacity: 0.8, scale: 1 }, { opacity: 0, scale: 5.2, duration: 1.2, ease: "power2.out", immediateRender: false }, 13.12);
+        tl.fromTo("#p2", { opacity: 0.6, scale: 1 }, { opacity: 0, scale: 5.2, duration: 1.2, ease: "power2.out", immediateRender: false }, 13.4);
+        tl.fromTo("#marca", { x: 300, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: "expo.out", immediateRender: false }, 13.2);
+        tl.fromTo("#bajada", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out", immediateRender: false }, 13.5);
+        tl.fromTo("#pildora", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2.2)", immediateRender: false }, 13.76);
+        tl.fromTo("#pie-linea", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.inOut" }, 13.92);
+        tl.fromTo("#pie", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "none", immediateRender: false }, 14.05);
+
+        window.__timelines["main"] = tl;
+      });
+    </script>
+  </body>
+</html>

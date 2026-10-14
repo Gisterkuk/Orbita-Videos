@@ -6,7 +6,10 @@ con "leé y seguí .claude/agents/<agente>.md", `model: sonnet` y `effort: mediu
 absolutas** y solo lo que cada uno puede leer, y lleva `produccion/estado.md`.
 
 **Modelo y tokens (decidido por la persona el 2026-10-13):** todos los agentes corren en **Sonnet con
-esfuerzo medio** (frontmatter `model: sonnet`, `effort: medium`). Para gastar menos:
+esfuerzo medio**, fijado en el frontmatter de cada agente (`model: sonnet`, `effort: medium`). Abriendo
+este repo los agentes se ven: disparalos con `subagent_type: <agente>` y **sin** pasar `model` ni `effort`,
+porque el parámetro de la invocación le gana al frontmatter. Para cambiar el modelo de un rol, se edita su
+archivo en `.claude/agents/` (p. ej. el editor a `effort: high` si rompe cosas seguido). Para gastar menos:
 - Los autores (guionista, editor) se **retoman** con `SendMessage` entre rondas: no vuelven a leer todo.
 - Los críticos son nuevos en cada ronda, pero con un pedido corto: solo las rutas que leen y los bloqueantes abiertos.
 - A todos se les pide una devolución de 3 a 5 líneas; el detalle queda en su archivo.

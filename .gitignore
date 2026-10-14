@@ -10,3 +10,12 @@ out/
 renders/
 tomas/
 .superpowers/
+# marketing: el material de terceros y las imágenes sin licencia documentada no se publican
+marketing/_trabajo/
+marketing/referencias/videos/
+marketing/**/.thumbnails/
+marketing/**/*.jpg
+marketing/**/*.jpeg
+marketing/**/*.png
+marketing/**/*.glb
+*.log

@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <!-- Reel narrado "Tu negocio, en órbita". Guion de edición: marketing/guiones/2026-10-09_reel-narrado-guion-de-edicion.md
+         Voz: El Faraón (ElevenLabs), tiempos por palabra en marketing/guiones/2026-10-09_narracion-tiempos.json -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/MotionPathPlugin.min.js"></script>
+    <style>
+      @font-face { font-family: "Sora"; src: url("assets/fonts/sora-latin.woff2") format("woff2"); font-weight: 100 800; }
+      @font-face { font-family: "Geist"; src: url("assets/fonts/geist-latin.woff2") format("woff2"); font-weight: 100 900; }
+      @font-face { font-family: "Geist Mono"; src: url("assets/fonts/geist-mono-latin.woff2") format("woff2"); font-weight: 100 900; }
+
+      :root {
+        --noche: #0a1432;
+        --azul: #2563eb;
+        --azul2: #3b82f6;
+        --celeste: #93c5fd;
+        --celeste-claro: #dbeafe;
+        --hueso: #f8fafc;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; overflow: hidden; background: var(--noche); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .escena { position: absolute; inset: 0; overflow: hidden; }
+      #camara { position: absolute; inset: 0; }
+      .lente { position: absolute; inset: 0; }
+      #vineta { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(2, 6, 23, 0.14) 100%); }
+      #grano { position: absolute; inset: 0; overflow: hidden; pointer-events: none; mix-blend-mode: overlay; opacity: 0.2; }
+      #grano i { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+      /* Cartel fijo arriba y subtítulos (zonas seguras de TikTok: x < 920, y < 1500) */
+      #cartel { position: absolute; left: 0; right: 120px; top: 230px; margin: 0 auto; width: max-content; padding: 20px 34px; border-radius: 22px; background: #fff; color: var(--noche); font: 700 46px/1.15 "Sora", sans-serif; letter-spacing: -0.02em; box-shadow: 0 18px 40px rgba(2, 6, 23, 0.25); }
+      #subs { position: absolute; left: 60px; right: 140px; top: 1300px; height: 190px; }
+      .sub { position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; width: max-content; max-width: 880px; padding: 16px 28px; border-radius: 22px; background: rgba(10, 20, 50, 0.78); text-align: center; font: 700 52px/1.22 "Geist", sans-serif; letter-spacing: -0.01em; color: rgba(248, 250, 252, 0.5); opacity: 0; }
+      .sub span { display: inline; }
+
+      /* Satélite con brillo (celeste, como el del logo) */
+      .sat { position: absolute; left: 0; top: 0; border-radius: 50%; background: var(--celeste); box-shadow: 0 0 24px rgba(147, 197, 253, 0.95), 0 0 70px rgba(147, 197, 253, 0.45); }
+
+      /* 1–2 · Gancho y problema */
+      #s1 { background: radial-gradient(circle at 50% 44%, #13245a 0%, #0a1432 55%, #060b1e 100%); }
+      #enjambre { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+      .frag { position: absolute; left: 0; top: 0; }
+      .chat { width: 230px; height: 96px; border-radius: 26px; background: #fff; padding: 20px 22px; display: flex; flex-direction: column; justify-content: center; gap: 12px; box-shadow: 0 20px 40px rgba(2, 6, 23, 0.4); }
+      .chat i { display: block; height: 12px; border-radius: 6px; background: #cbd5e1; }
+      .chat i + i { width: 62%; background: #e2e8f0; }
+      .planilla { width: 240px; height: 156px; border-radius: 14px; background: #fff; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 26px repeat(4, 1fr); overflow: hidden; box-shadow: 0 20px 40px rgba(2, 6, 23, 0.4); }
+      .planilla i { border-right: 1.5px solid #e2e8f0; border-bottom: 1.5px solid #e2e8f0; }
+      .planilla i.h { background: #bfdbfe; }
+      .nota { width: 150px; height: 150px; border-radius: 6px; background: var(--celeste-claro); padding: 22px 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 20px 40px rgba(2, 6, 23, 0.4); }
+      .nota i { display: block; height: 10px; border-radius: 5px; background: #93c5fd; }
+      #ramas1 { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
+      #ramas1 path, #ramas4 path { fill: none; stroke: var(--celeste); stroke-width: 3.5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(147, 197, 253, 0.9)); }
+      #anillo2 { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
+      #wipe { position: absolute; left: 460px; top: 790px; width: 100px; height: 100px; border-radius: 50%; background: var(--hueso); opacity: 0; }
+
+      /* Logo real (OrbitaLogo a 300 px: anillo 10 px rgba(59,130,246,.4), planeta 102 px, satélite 51 px #93c5fd) */
+      .logo { position: absolute; width: 300px; height: 300px; }
+      .logo .anillo { position: absolute; inset: 0; border-radius: 50%; border: 10px solid rgba(59, 130, 246, 0.4); }
+      .logo .planeta { position: absolute; left: 99px; top: 99px; width: 102px; height: 102px; border-radius: 50%; background: #3b82f6; box-shadow: 0 0 90px rgba(59, 130, 246, 0.45); }
+      .logo .gira { position: absolute; inset: 0; }
+      .logo .satl { position: absolute; left: 124.5px; top: -20.5px; width: 51px; height: 51px; border-radius: 50%; background: #93c5fd; box-shadow: 0 0 8px rgba(147, 197, 253, 0.8); }
+      .marca { position: absolute; left: 0; right: 120px; text-align: center; font: 900 150px/1 "Geist", sans-serif; letter-spacing: -0.02em; color: var(--noche); }
+
+      /* 3 · Conocé Órbita */
+      #s3 { background: var(--hueso); }
+      #logo3 { left: 360px; top: 560px; }
+      #marca3 { top: 940px; opacity: 0; }
+
+      /* 4 · Producto y tienda */
+      #s4 { background: var(--hueso); }
+      .tarjeta { position: absolute; width: 460px; border-radius: 30px; background: #fff; box-shadow: 0 30px 60px rgba(37, 99, 235, 0.2); overflow: hidden; }
+      #prod { left: 280px; top: 470px; }
+      .tarjeta .img { height: 210px; display: flex; align-items: center; justify-content: center; }
+      .tarjeta .cuerpo { padding: 22px 28px 28px; }
+      .tarjeta .rot { font: 500 22px/1 "Geist Mono", monospace; letter-spacing: 0.06em; color: #64748b; text-transform: uppercase; }
+      #tipeo { margin-top: 12px; height: 52px; font: 600 42px/52px "Sora", sans-serif; color: var(--noche); white-space: nowrap; }
+      #tipeo .ch { opacity: 0; }
+      #cursor-t { display: inline-block; width: 4px; height: 40px; margin-left: 4px; vertical-align: -6px; background: var(--azul); }
+      #orbi { position: absolute; left: 0; right: 120px; top: 400px; margin: 0 auto; width: 200px; height: 60px; border-radius: 999px; background: var(--noche); color: #fff; display: flex; align-items: center; justify-content: center; gap: 12px; font: 600 28px/1 "Geist", sans-serif; opacity: 0; }
+      #orbi i { width: 18px; height: 18px; border-radius: 50%; background: var(--celeste); box-shadow: 0 0 14px rgba(147, 197, 253, 0.9); }
+      #ramas4 { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
+      #ramas4 path { stroke: var(--azul2); filter: none; }
+      .chip { position: absolute; left: 360px; width: 380px; height: 74px; border-radius: 20px; background: #fff; border: 1.5px solid #bfdbfe; display: flex; align-items: center; justify-content: space-between; padding: 0 20px 0 28px; font: 600 30px/1 "Geist", sans-serif; color: var(--noche); opacity: 0; box-shadow: 0 12px 30px rgba(37, 99, 235, 0.12); }
+      .chip b { width: 38px; height: 38px; border-radius: 50%; background: var(--azul2); display: flex; align-items: center; justify-content: center; }
+      #telefono { position: absolute; left: 270px; top: 400px; width: 480px; height: 860px; border-radius: 64px; border: 12px solid var(--noche); background: #fff; opacity: 0; }
+      #telefono .barra { position: absolute; left: 0; right: 0; top: 40px; text-align: center; font: 700 30px/1 "Sora", sans-serif; color: var(--noche); }
+      #telefono .muesca { position: absolute; left: 50%; top: 14px; width: 120px; height: 10px; margin-left: -60px; border-radius: 5px; background: var(--noche); }
+      .mini { position: absolute; width: 210px; border-radius: 22px; background: #fff; box-shadow: 0 24px 50px rgba(37, 99, 235, 0.22); overflow: hidden; opacity: 0; }
+      .mini .img { height: 120px; display: flex; align-items: center; justify-content: center; }
+      .mini .t { padding: 12px 16px 16px; font: 600 22px/1.2 "Geist", sans-serif; color: var(--noche); }
+
+      /* 5 · Pedidos, cobro y planilla que se desarma */
+      #s5 { background: var(--azul); }
+      .notif { position: absolute; left: 110px; width: 800px; height: 110px; border-radius: 24px; background: #fff; display: flex; align-items: center; gap: 24px; padding: 0 32px; box-shadow: 0 24px 50px rgba(2, 6, 23, 0.25); opacity: 0; }
+      .notif .pin { width: 28px; height: 28px; border-radius: 50%; background: var(--celeste); box-shadow: 0 0 0 8px rgba(147, 197, 253, 0.3); flex: none; }
+      .notif b { display: block; font: 700 32px/1.1 "Sora", sans-serif; color: var(--noche); }
+      .notif span { display: block; margin-top: 6px; font: 500 23px/1 "Geist", sans-serif; color: #475569; }
+      .notif em { margin-left: auto; font: 500 18px/1 "Geist Mono", monospace; font-style: normal; color: #475569; }
+      #flip { position: absolute; left: 290px; top: 760px; width: 440px; height: 320px; transform-style: preserve-3d; opacity: 0; }
+      .cara { position: absolute; inset: 0; border-radius: 30px; background: #fff; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 30px 60px rgba(2, 6, 23, 0.25); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+      .cara.dorso { transform: rotateY(180deg); }
+      .cara .nom { font: 600 30px/1 "Geist", sans-serif; color: #475569; }
+      .cara .pre { font: 700 64px/1 "Sora", sans-serif; color: var(--noche); letter-spacing: -0.02em; }
+      #check { width: 120px; height: 120px; border-radius: 50%; background: var(--celeste); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(147, 197, 253, 0.7); }
+      #aprobado { font: 700 40px/1 "Sora", sans-serif; color: var(--noche); }
+      #grilla5 { position: absolute; left: 150px; top: 620px; width: 720px; height: 420px; }
+      .celda { position: absolute; width: 120px; height: 70px; background: #fff; border: 1.5px solid #cbd5e1; opacity: 0; }
+      .celda.h { background: #bfdbfe; }
+      #resumen { position: absolute; left: 230px; top: 680px; width: 560px; height: 340px; border-radius: 30px; background: #fff; box-shadow: 0 30px 60px rgba(2, 6, 23, 0.25); padding: 34px 40px; opacity: 0; }
+      #resumen .tit { display: flex; align-items: center; justify-content: space-between; font: 700 36px/1 "Sora", sans-serif; color: var(--noche); }
+      #resumen .tit b { width: 46px; height: 46px; border-radius: 50%; background: var(--celeste); display: flex; align-items: center; justify-content: center; }
+      #resumen .barras { position: absolute; left: 40px; right: 40px; bottom: 34px; height: 170px; display: flex; align-items: flex-end; gap: 22px; }
+      #resumen .barras i { flex: 1; border-radius: 10px 10px 4px 4px; background: #bfdbfe; transform-origin: 50% 100%; }
+
+      /* 6 · Juntá todo, uní los puntos */
+      #s6 { background: radial-gradient(circle at 50% 46%, #13245a 0%, #0a1432 60%, #060b1e 100%); }
+      #lineas6 { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
+      #lineas6 path { fill: none; stroke: rgba(147, 197, 253, 0.8); stroke-width: 3; stroke-linecap: round; }
+      .barra6 { position: absolute; width: 74px; border-radius: 14px 14px 6px 6px; background: var(--azul); transform-origin: 50% 100%; }
+      .barra6.top { background: var(--celeste); box-shadow: 0 0 40px rgba(147, 197, 253, 0.6); }
+      .chispa6 { position: absolute; left: 0; top: 0; width: 14px; height: 14px; border-radius: 50%; background: var(--celeste); opacity: 0; }
+
+      /* 7 · Cierre */
+      #s7 { background: linear-gradient(180deg, #dbeafe 0%, #f8fafc 60%, #ffffff 100%); }
+      #frase7 { position: absolute; left: 0; right: 120px; top: 640px; text-align: center; }
+      #frase7 .l1 { font: 700 84px/1.1 "Sora", sans-serif; letter-spacing: -0.03em; color: var(--noche); opacity: 0; }
+      #caja7 { position: relative; display: inline-block; margin-top: 26px; height: 128px; min-width: 520px; border-radius: 26px; background: var(--azul); opacity: 0; }
+      .pal7 { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 800 96px/1 "Sora", sans-serif; letter-spacing: -0.03em; color: #fff; opacity: 0; }
+      #logo7 { left: 360px; top: 560px; }
+      #logo7 .anillo { border-color: transparent; }
+      #aro7 { position: absolute; left: 0; top: 0; width: 300px; height: 300px; overflow: visible; }
+      #marca7 { top: 920px; opacity: 0; }
+      #firma7 { position: absolute; left: 0; right: 120px; top: 1110px; text-align: center; font: 600 50px/1 "Geist", sans-serif; color: var(--noche); opacity: 0; }
+      #pildora7 { position: absolute; left: 0; right: 120px; top: 1220px; margin: 0 auto; width: 300px; height: 76px; border-radius: 999px; background: var(--noche); color: #fff; display: flex; align-items: center; justify-content: center; font: 600 36px/1 "Geist", sans-serif; opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-fps="60" data-width="1080" data-height="1920">
+      <div id="camara">
+        <!-- 1–2 · GANCHO Y PROBLEMA -->
+        <div id="s1" class="escena clip" data-start="0" data-duration="7.72" data-track-index="0">
+          <svg id="ramas1" viewBox="0 0 1080 1920" aria-hidden="true"></svg>
+          <svg id="anillo2" viewBox="0 0 1080 1920" aria-hidden="true">
+            <circle id="aro2" cx="510" cy="840" r="280" fill="none" stroke="#93c5fd" stroke-width="4" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" />
+          </svg>
+          <div id="enjambre"></div>
+          <div id="sat1" class="sat" style="width: 40px; height: 40px"></div>
+          <div id="wipe"></div>
+        </div>
+
+        <!-- 3 · CONOCÉ ÓRBITA -->
+        <div id="s3" class="escena clip" data-start="7.72" data-duration="1.84" data-track-index="1">
+          <div id="logo3" class="logo"><i class="anillo"></i><i class="planeta"></i><div class="gira" id="gira3"><i class="satl"></i></div></div>
+          <div id="marca3" class="marca">Órbita</div>
+        </div>
+
+        <!-- 4 · PRODUCTO Y TIENDA -->
+        <div id="s4" class="escena clip" data-start="9.56" data-duration="4.68" data-track-index="2">
+          <div id="telefono"><i class="muesca"></i><div class="barra">Tu tienda</div></div>
+          <div id="minis"></div>
+          <div id="prod" class="tarjeta">
+            <div class="img" style="background: linear-gradient(150deg, #dbeafe, #60a5fa)">
+              <svg width="120" height="110" viewBox="0 0 120 110" aria-hidden="true"><path d="M18 22 h70 v52 a26 26 0 0 1 -26 26 h-18 a26 26 0 0 1 -26 -26 z" fill="#fff" /><path d="M88 34 h8 a14 14 0 0 1 0 28 h-8" fill="none" stroke="#fff" stroke-width="9" /></svg>
+            </div>
+            <div class="cuerpo"><div class="rot">Nombre del producto</div><div id="tipeo"></div></div>
+          </div>
+          <div id="orbi"><i></i>Orbi</div>
+          <svg id="ramas4" viewBox="0 0 1080 1920" aria-hidden="true">
+            <path id="r4a" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" d="M 510 900 C 510 960, 420 940, 360 997" />
+            <path id="r4b" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" d="M 510 900 C 510 1000, 420 1040, 360 1087" />
+            <path id="r4c" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1" d="M 510 900 C 510 1060, 420 1130, 360 1177" />
+          </svg>
+          <div class="chip" id="chip1" style="top: 960px">Descripción<b><svg width="20" height="20" viewBox="0 0 22 22"><path d="M5 11.5 L9.5 16 L17 7" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></div>
+          <div class="chip" id="chip2" style="top: 1050px">Categoría<b><svg width="20" height="20" viewBox="0 0 22 22"><path d="M5 11.5 L9.5 16 L17 7" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></div>
+          <div class="chip" id="chip3" style="top: 1140px">Etiquetas<b><svg width="20" height="20" viewBox="0 0 22 22"><path d="M5 11.5 L9.5 16 L17 7" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></div>
+          <div id="sat4" class="sat" style="width: 26px; height: 26px; opacity: 0"></div>
+        </div>
+
+        <!-- 5 · PEDIDOS, COBRO, SIN PLANILLAS -->
+        <div id="s5" class="escena clip" data-start="14.24" data-duration="4.24" data-track-index="3">
+          <div id="n1" class="notif" style="top: 470px"><i class="pin"></i><div><b>Nuevo pedido</b><span>Taza de cerámica</span></div><em>AHORA</em></div>
+          <div id="n2" class="notif" style="top: 470px"><i class="pin"></i><div><b>Nuevo pedido</b><span>Remera básica</span></div><em>AHORA</em></div>
+          <div id="n3" class="notif" style="top: 470px"><i class="pin"></i><div><b>Nuevo pedido</b><span>Auriculares</span></div><em>AHORA</em></div>
+          <div id="flip">
+            <div class="cara frente"><div class="nom">Taza de cerámica</div><div class="pre">$&nbsp;12.500</div></div>
+            <div class="cara dorso">
+              <div id="check"><svg width="70" height="70" viewBox="0 0 76 76" aria-hidden="true"><path id="trazo-check" d="M18 40 L32 53 L58 24" pathLength="1" fill="none" stroke="#0a1432" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 1" stroke-dashoffset="1" /></svg></div>
+              <div id="aprobado">Pago aprobado</div>
+            </div>
+          </div>
+          <div id="grilla5"></div>
+          <div id="resumen">
+            <div class="tit">Todo al día<b><svg width="24" height="24" viewBox="0 0 22 22"><path d="M5 11.5 L9.5 16 L17 7" fill="none" stroke="#0a1432" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></div>
+            <div class="barras"><i style="height: 40%"></i><i style="height: 62%"></i><i style="height: 50%"></i><i style="height: 78%"></i><i style="height: 66%"></i><i style="height: 92%"></i></div>
+          </div>
+        </div>
+
+        <!-- 6 · JUNTÁ TODO, UNÍ LOS PUNTOS, ENTENDÉ QUÉ FUNCIONA -->
+        <div id="s6" class="escena clip" data-start="18.48" data-duration="4.48" data-track-index="4">
+          <svg id="lineas6" viewBox="0 0 1080 1920" aria-hidden="true"></svg>
+          <div id="barras6"></div>
+          <div id="puntos6"></div>
+          <div id="chispas6"></div>
+        </div>
+
+        <!-- 7 · CIERRE -->
+        <div id="s7" class="escena clip" data-start="22.96" data-duration="7.04" data-track-index="5">
+          <div id="frase7">
+            <div class="l1">Un solo lugar para</div>
+            <div id="caja7"><div class="pal7" id="p71">mostrar</div><div class="pal7" id="p72">vender</div><div class="pal7" id="p73">entender</div></div>
+          </div>
+          <div id="logo7" class="logo">
+            <svg id="aro7" viewBox="0 0 300 300" aria-hidden="true"><circle id="aro7c" cx="150" cy="150" r="145" fill="none" stroke="rgba(59,130,246,0.4)" stroke-width="10" transform="rotate(-90 150 150)" stroke-dasharray="0 911.06" stroke-dashoffset="-683.3" /></svg>
+            <i class="anillo"></i><i class="planeta" id="planeta7"></i>
+            <div class="gira" id="gira7"><i class="satl" id="satl7"></i></div>
+          </div>
+          <div id="marca7" class="marca">Órbita</div>
+          <div id="firma7">Tu negocio, en órbita.</div>
+          <div id="pildora7">orbita.site</div>
+        </div>
+      </div>
+
+      <div id="vineta"></div>
+      <div id="grano"><i></i></div>
+      <div id="cartel">¿Tu negocio está disperso?</div>
+      <div id="subs"></div>
+
+      <audio id="mezcla" src="assets/audio/mezcla.wav" data-start="0" data-duration="30" data-track-index="9" data-volume="1"></audio>
+    </div>
+
+    <script>
+      document.fonts.ready.then(() => {
+        gsap.registerPlugin(MotionPathPlugin);
+        const tl = gsap.timeline({ paused: true });
+        const CX = 510, CY = 840; // centro visual (corrido a la izquierda por la columna de botones de TikTok)
+
+        // ---------- cámara en mano, grano ----------
+        tl.set("#camara", { scale: 1.02 }, 0);
+        tl.fromTo("#camara", { x: -6 }, { x: 6, duration: 1.9, ease: "sine.inOut", yoyo: true, repeat: 15 }, 0);
+        tl.fromTo("#camara", { y: -5 }, { y: 5, duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: 11 }, 0);
+        tl.fromTo("#camara", { rotation: -0.2 }, { rotation: 0.2, duration: 3.4, ease: "sine.inOut", yoyo: true, repeat: 8 }, 0);
+        for (let k = 0; k < 360; k++) tl.set("#grano i", { x: ((k * 37) % 100) - 50, y: ((k * 53) % 100) - 50 }, k / 12);
+
+        // ---------- subtítulos: frase entera, la palabra que se dice se ilumina ----------
+        const FRASES = [
+          [[0.0, "Demasiados"], [0.72, "chats,"], [1.52, "planillas,"], [2.34, "notas,"]],
+          [[3.1, "repartidos"], [3.58, "en"], [3.82, "mil"], [4.1, "lugares."]],
+          [[5.42, "¿Y"], [5.6, "si"], [5.7, "todo"], [6.02, "se"], [6.26, "conectara?"]],
+          [[7.72, "Conocé"], [8.22, "Órbita."]],
+          [[9.56, "Escribí"], [9.96, "el"], [10.08, "nombre"], [10.26, "de"], [10.4, "un"], [10.5, "producto,"]],
+          [[11.22, "Orbi"], [11.4, "te"], [11.58, "lo"], [11.72, "describe"], [12.08, "y"], [12.6, "mostralo"], [13.14, "en"], [13.28, "tu"], [13.36, "tienda."]],
+          [[14.24, "Recibí"], [14.64, "pedidos,"], [15.36, "cobrá"], [15.5, "online"]],
+          [[16.06, "y"], [16.5, "llevá"], [16.78, "la"], [16.88, "cuenta"], [17.14, "sin"], [17.46, "planillas."]],
+          [[18.48, "Juntá"], [18.9, "todo,"], [19.66, "uní"], [19.84, "los"], [19.96, "puntos"]],
+          [[20.34, "y"], [20.86, "entendé"], [21.24, "qué"], [21.52, "funciona."]],
+        ];
+        const FIN_FRASE = [3.1, 5.0, 7.3, 9.3, 11.22, 14.0, 16.06, 18.2, 20.34, 22.6];
+        const subs = document.getElementById("subs");
+        FRASES.forEach((frase, f) => {
+          const d = document.createElement("div");
+          d.className = "sub";
+          d.id = `sub${f}`;
+          frase.forEach(([t, txt], k) => {
+            const s = document.createElement("span");
+            s.id = `sub${f}w${k}`;
+            s.textContent = txt + (k < frase.length - 1 ? " " : "");
+            d.appendChild(s);
+            tl.set(s, { color: "#93c5fd" }, t);
+            tl.set(s, { color: "#f8fafc" }, k < frase.length - 1 ? frase[k + 1][0] : FIN_FRASE[f]);
+          });
+          subs.appendChild(d);
+          tl.fromTo(d, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.14, ease: "power2.out", immediateRender: false }, frase[0][0] - 0.04);
+          tl.to(d, { opacity: 0, duration: 0.1, ease: "none" }, FIN_FRASE[f] - 0.1);
+        });
+        // el cartel acompaña hasta el cierre
+        tl.to("#cartel", { opacity: 0, y: -20, duration: 0.25, ease: "power2.in" }, 22.6);
+
+        // ---------- 1 · Gancho: el caos aparece con cada palabra ----------
+        const FRAGS = [
+          ["chat", 250, 540, -6, 0.04], ["chat", 760, 610, 5, 0.18], ["chat", 300, 1070, 4, 0.72], ["chat", 770, 1130, -5, 0.86],
+          ["planilla", 720, 860, 6, 1.52], ["planilla", 230, 800, -5, 1.62], ["planilla", 560, 1190, 3, 1.74],
+          ["nota", 830, 470, 8, 2.34], ["nota", 170, 1180, -9, 2.44], ["nota", 520, 640, -4, 2.56],
+        ];
+        const enjambre = document.getElementById("enjambre");
+        const ramas1 = document.getElementById("ramas1");
+        const MEDIDAS = { chat: [230, 96], planilla: [240, 156], nota: [150, 150] };
+        FRAGS.forEach(([tipo, x, y, r, t], i) => {
+          const el = document.createElement("div");
+          el.className = `frag ${tipo}`;
+          el.id = `f${i}`;
+          if (tipo === "chat") el.innerHTML = "<i></i><i></i>";
+          if (tipo === "planilla") el.innerHTML = Array.from({ length: 20 }, (_, k) => `<i class="${k < 4 ? "h" : ""}"></i>`).join("");
+          if (tipo === "nota") el.innerHTML = "<i></i><i></i><i style=\"width:60%\"></i>";
+          enjambre.appendChild(el);
+          const [w, h] = MEDIDAS[tipo];
+          // aparece con su palabra
+          tl.fromTo(el, { x: x - w / 2, y: y - h / 2 + 40, rotation: r - 10, scale: 0.6, opacity: 0 }, { y: y - h / 2, rotation: r, scale: 1, opacity: 1, duration: 0.34, ease: "back.out(2)" }, t);
+          tl.to(el, { y: y - h / 2 - 10, duration: 1.2, ease: "sine.inOut", yoyo: true, repeat: 1 }, t + 0.34);
+          // "repartidos en mil lugares": se dispersa hacia los bordes y una rama lo persigue
+          const dx = x - CX, dy = y - CY;
+          const ex = CX + dx * 1.42, ey = CY + dy * 1.32;
+          tl.to(el, { x: ex - w / 2, y: ey - h / 2, rotation: r * 2.2, scale: 0.88, duration: 1.0, ease: "power3.out" }, 3.3 + i * 0.03);
+          const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          p.setAttribute("d", `M ${CX} ${CY} Q ${CX + dx * 0.5 + dy * 0.25} ${CY + dy * 0.5 - dx * 0.25}, ${ex} ${ey}`);
+          p.setAttribute("pathLength", "1");
+          p.setAttribute("stroke-dasharray", "1 1");
+          p.setAttribute("stroke-dashoffset", "1");
+          p.id = `ra${i}`;
+          ramas1.appendChild(p);
+          tl.fromTo(p, { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.8, ease: "power2.out", immediateRender: false }, 3.36 + i * 0.03);
+          // ---------- 2 · Problema: las ramas tiran y todo entra en órbita ----------
+          tl.to(p, { attr: { "stroke-dashoffset": -1 }, duration: 0.55, ease: "power2.in" }, 5.42);
+          const ang = (i / FRAGS.length) * Math.PI * 2 - Math.PI / 2;
+          const ox = CX + Math.cos(ang) * 280, oy = CY + Math.sin(ang) * 280;
+          tl.to(el, { x: ox - w / 2, y: oy - h / 2, scale: 0.34, rotation: 0, duration: 1.05, ease: "power3.inOut" }, 5.5 + i * 0.02);
+          tl.to(el, { scale: 0.08, opacity: 0, duration: 0.35, ease: "power2.in" }, 6.84 + i * 0.015);
+        });
+        tl.set("#enjambre", { transformOrigin: `${CX}px ${CY}px` }, 0);
+        tl.fromTo("#enjambre", { rotation: 0 }, { rotation: 160, duration: 2.0, ease: "power2.in", immediateRender: false }, 5.6);
+        // satélite
+        tl.set("#sat1", { x: CX - 20, y: CY - 20, scale: 0 }, 0);
+        tl.to("#sat1", { scale: 1, duration: 0.3, ease: "back.out(3)" }, 3.1);
+        tl.to("#sat1", { scale: 1.6, duration: 0.18, ease: "power2.out" }, 5.42);
+        tl.to("#sat1", { scale: 1, duration: 0.5, ease: "power2.inOut" }, 5.6);
+        // el anillo se dibuja con los fragmentos y late
+        tl.fromTo("#aro2", { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.6, ease: "power2.inOut", immediateRender: false }, 6.7);
+        tl.fromTo("#anillo2", { scale: 1 }, { scale: 1.06, duration: 0.12, ease: "power2.out", immediateRender: false, transformOrigin: `${CX}px ${CY}px` }, 7.3);
+        tl.to("#anillo2", { scale: 0.9, duration: 0.25, ease: "power2.in", transformOrigin: `${CX}px ${CY}px` }, 7.42);
+        // corte a blanco desde el centro
+        tl.set("#wipe", { opacity: 1 }, 7.42);
+        tl.fromTo("#wipe", { scale: 0 }, { scale: 26, duration: 0.3, ease: "power3.in", immediateRender: false }, 7.42);
+
+        // ---------- 3 · Conocé Órbita ----------
+        tl.fromTo("#logo3", { scale: 1.75, opacity: 0.4 }, { scale: 1, opacity: 1, duration: 0.5, ease: "expo.out", immediateRender: false }, 7.72);
+        tl.fromTo("#gira3", { rotation: 0 }, { rotation: 360 * (1.84 / 3.2), duration: 1.84, ease: "none", immediateRender: false }, 7.72);
+        tl.fromTo("#marca3", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.32, ease: "expo.out", immediateRender: false }, 8.2);
+        tl.to(["#logo3", "#marca3"], { opacity: 0, scale: 0.92, duration: 0.2, ease: "power2.in" }, 9.36);
+
+        // ---------- 4 · Escribí el nombre… Orbi te lo describe… mostralo en tu tienda ----------
+        tl.fromTo("#prod", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: "power3.out", immediateRender: false }, 9.56);
+        const tipeo = document.getElementById("tipeo");
+        "Taza de cerámica".split("").forEach((ch, k) => {
+          const s = document.createElement("span");
+          s.className = "ch";
+          s.textContent = ch === " " ? " " : ch;
+          tipeo.appendChild(s);
+          tl.set(s, { opacity: 1 }, 9.66 + k * 0.07);
+        });
+        const caret = document.createElement("i");
+        caret.id = "cursor-t";
+        tipeo.appendChild(caret);
+        for (let k = 0; k < 12; k++) tl.set("#cursor-t", { opacity: k % 2 ? 1 : 0 }, 9.56 + k * 0.28);
+        tl.fromTo("#orbi", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.24, ease: "back.out(2.5)", immediateRender: false }, 11.18);
+        tl.set("#sat4", { xPercent: -50, yPercent: -50, x: 510, y: 900 }, 0);
+        tl.set("#sat4", { opacity: 1 }, 11.22);
+        ["r4a", "r4b", "r4c"].forEach((r, k) => {
+          const t = 11.3 + k * 0.12;
+          tl.fromTo(`#${r}`, { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, ease: "power2.out", immediateRender: false }, t);
+          tl.fromTo(`#chip${k + 1}`, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.24, ease: "back.out(2)", immediateRender: false }, t + 0.22);
+          tl.fromTo(`#chip${k + 1} b`, { scale: 0 }, { scale: 1, duration: 0.2, ease: "back.out(3)", immediateRender: false }, t + 0.3);
+        });
+        tl.to("#sat4", { scale: 1.6, duration: 0.1 }, 11.3);
+        tl.to("#sat4", { scale: 1, duration: 0.3, ease: "back.out(3)" }, 11.4);
+        // a la tienda
+        tl.to(["#orbi", "#chip1", "#chip2", "#chip3", "#ramas4", "#sat4"], { opacity: 0, duration: 0.2, ease: "none" }, 12.12);
+        tl.fromTo("#telefono", { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out", immediateRender: false }, 12.2);
+        tl.to("#prod", { y: 150, scale: 0.78, duration: 0.45, ease: "power3.inOut" }, 12.2);
+        const MINIS = [
+          ["Auriculares", 120, 480, -8, "linear-gradient(150deg, #dbeafe, #93c5fd)", '<path d="M22 70 v-14 a38 38 0 0 1 76 0 v14" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/><rect x="14" y="62" width="22" height="36" rx="9" fill="#fff"/><rect x="84" y="62" width="22" height="36" rx="9" fill="#fff"/>'],
+          ["Remera", 700, 520, 7, "linear-gradient(150deg, #bfdbfe, #3b82f6)", '<path d="M42 14 L22 22 L8 46 L26 54 L30 44 L30 100 L90 100 L90 44 L94 54 L112 46 L98 22 L78 14 Q60 32 42 14 Z" fill="#fff"/>'],
+          ["Celular", 110, 1010, 6, "linear-gradient(150deg, #334155, #0a1432)", '<rect x="36" y="6" width="48" height="98" rx="12" fill="none" stroke="#fff" stroke-width="7"/><rect x="51" y="14" width="18" height="6" rx="3" fill="#fff"/>'],
+          ["Zapatillas", 700, 1040, -6, "linear-gradient(150deg, #e0f2fe, #60a5fa)", '<path d="M8 74 Q10 48 30 44 L52 60 Q74 70 98 70 Q112 72 112 86 L112 92 L8 92 Z" fill="#fff"/><path d="M8 98 L112 98" stroke="#fff" stroke-width="6" stroke-linecap="round"/>'],
+        ];
+        const minis = document.getElementById("minis");
+        MINIS.forEach(([nom, x, y, r, fondo, ico], k) => {
+          const m = document.createElement("div");
+          m.className = "mini";
+          m.id = `mini${k}`;
+          m.innerHTML = `<div class="img" style="background:${fondo}"><svg width="90" height="84" viewBox="0 0 120 110">${ico}</svg></div><div class="t">${nom}</div>`;
+          minis.appendChild(m);
+          tl.fromTo(m, { x: CX - 105, y: 760, rotation: 0, scale: 0.5, opacity: 0 }, { x, y, rotation: r, scale: 1, opacity: 1, duration: 0.42, ease: "back.out(1.6)", immediateRender: false }, 12.6 + k * 0.06);
+        });
+
+        // ---------- 5 · Recibí pedidos, cobrá online, sin planillas ----------
+        [["#n1", 14.3], ["#n2", 14.64], ["#n3", 15.0]].forEach(([n, t], k, arr) => {
+          tl.fromTo(n, { y: -60, opacity: 0, scale: 0.95 }, { y: 0, opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.7)", immediateRender: false }, t);
+          arr.slice(0, k).forEach(([prev], j) => tl.to(prev, { y: (k - j) * 130, opacity: 0.85, duration: 0.28, ease: "power3.out" }, t));
+        });
+        tl.to(["#n1", "#n2", "#n3"], { opacity: 0.25, duration: 0.25 }, 15.3);
+        tl.fromTo("#flip", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.25, ease: "power3.out", immediateRender: false }, 15.3);
+        tl.fromTo("#flip", { rotationY: 0, transformPerspective: 1500 }, { rotationY: 180, duration: 0.4, ease: "power3.inOut", immediateRender: false }, 15.42);
+        tl.set("#flip .frente", { opacity: 0 }, 15.62);
+        tl.to("#trazo-check", { attr: { "stroke-dashoffset": 0 }, duration: 0.24, ease: "power2.out" }, 15.78);
+        // "llevá la cuenta sin planillas": la planilla del principio vuelve y se desarma
+        tl.to(["#n1", "#n2", "#n3", "#flip"], { opacity: 0, duration: 0.2 }, 16.3);
+        const grilla = document.getElementById("grilla5");
+        for (let f = 0; f < 6; f++) {
+          for (let c = 0; c < 6; c++) {
+            const d = document.createElement("i");
+            d.className = `celda${f === 0 ? " h" : ""}`;
+            d.style.left = `${c * 120}px`;
+            d.style.top = `${f * 70}px`;
+            grilla.appendChild(d);
+            const k = f * 6 + c;
+            tl.set(d, { opacity: 1 }, 16.42 + (k % 7) * 0.012);
+            const a = ((k * 47) % 360) * (Math.PI / 180), dist = 380 + ((k * 31) % 220);
+            tl.to(d, { x: Math.cos(a) * dist, y: Math.sin(a) * dist, rotation: ((k * 53) % 180) - 90, scale: 0.3, opacity: 0, duration: 0.75, ease: "power2.in" }, 16.95 + (k % 9) * 0.02);
+          }
+        }
+        tl.fromTo("#resumen", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.8)", immediateRender: false }, 17.4);
+        document.querySelectorAll("#resumen .barras i").forEach((b, k) => tl.fromTo(b, { scaleY: 0 }, { scaleY: 1, duration: 0.3, ease: "back.out(1.4)" }, 17.5 + k * 0.05));
+
+        // ---------- 6 · Juntá todo, uní los puntos, entendé qué funciona ----------
+        const ALTOS = [180, 250, 215, 320, 290, 390, 480];
+        const BASE = 1180, ANCHO = 74, GAP = 30, IZQ = 510 - (7 * ANCHO + 6 * GAP) / 2;
+        const CONST = [[300, 640], [420, 520], [560, 600], [650, 470], [760, 640], [610, 780], [400, 800]];
+        const INI = [[90, 420], [960, 520], [140, 1240], [900, 1260], [520, 1350], [60, 860], [990, 900]];
+        const puntos6 = document.getElementById("puntos6");
+        const lineas6 = document.getElementById("lineas6");
+        const barras6 = document.getElementById("barras6");
+        ALTOS.forEach((h, k) => {
+          const b = document.createElement("i");
+          b.className = `barra6${k === 6 ? " top" : ""}`;
+          b.style.left = `${IZQ + k * (ANCHO + GAP)}px`;
+          b.style.top = `${BASE - h}px`;
+          b.style.height = `${h}px`;
+          barras6.appendChild(b);
+          tl.fromTo(b, { scaleY: 0 }, { scaleY: 1, duration: 0.4, ease: "back.out(1.4)" }, 20.95 + k * 0.06);
+          const p = document.createElement("i");
+          p.className = "sat";
+          p.id = `pt${k}`;
+          p.style.width = p.style.height = "28px";
+          puntos6.appendChild(p);
+          const [ix, iy] = INI[k], [cx, cy] = CONST[k];
+          tl.set(p, { xPercent: -50, yPercent: -50, x: ix, y: iy }, 0);
+          tl.fromTo(p, { scale: 0 }, { scale: 1, duration: 0.2, ease: "back.out(3)", immediateRender: false }, 18.48 + k * 0.02);
+          tl.to(p, { x: cx, y: cy, duration: 0.65, ease: "power3.out" }, 18.56 + k * 0.03);
+          // se acomodan arriba de su barra
+          tl.to(p, { x: IZQ + k * (ANCHO + GAP) + ANCHO / 2, y: BASE - h - 26, duration: 0.5, ease: "power3.inOut" }, 20.86);
+          if (k < 6) {
+            const [nx, ny] = CONST[k + 1];
+            const l = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            l.setAttribute("d", `M ${cx} ${cy} L ${nx} ${ny}`);
+            l.setAttribute("pathLength", "1");
+            l.setAttribute("stroke-dasharray", "1 1");
+            l.setAttribute("stroke-dashoffset", "1");
+            lineas6.appendChild(l);
+            tl.fromTo(l, { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.18, ease: "power1.out", immediateRender: false }, 19.7 + k * 0.16);
+          }
+        });
+        tl.to("#lineas6", { opacity: 0, duration: 0.25 }, 20.86);
+        const chispas6 = document.getElementById("chispas6");
+        const topX = IZQ + 6 * (ANCHO + GAP) + ANCHO / 2, topY = BASE - ALTOS[6];
+        for (let k = 0; k < 10; k++) {
+          const c = document.createElement("i");
+          c.className = "chispa6";
+          chispas6.appendChild(c);
+          const a = (-170 + k * 17.8) * (Math.PI / 180), dist = 90 + (k % 3) * 26;
+          tl.fromTo(c, { x: topX - 7, y: topY - 7, scale: 1, opacity: 1 }, { x: topX - 7 + Math.cos(a) * dist, y: topY - 7 + Math.sin(a) * dist, scale: 0.2, opacity: 0, duration: 0.55, ease: "power2.out", immediateRender: false }, 21.5);
+        }
+
+        // ---------- 7 · Un solo lugar para mostrar, vender y entender · Tu negocio, en órbita ----------
+        tl.fromTo("#frase7 .l1", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out", immediateRender: false }, 22.96);
+        tl.fromTo("#caja7", { opacity: 0, scaleX: 0.3 }, { opacity: 1, scaleX: 1, duration: 0.3, ease: "back.out(1.8)", immediateRender: false }, 23.9);
+        [["#p71", 24.08, 24.88], ["#p72", 24.88, 25.56], ["#p73", 25.56, 26.5]].forEach(([p, ini, fin]) => {
+          tl.fromTo(p, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.18, ease: "power3.out", immediateRender: false }, ini);
+          tl.to(p, { opacity: 0, y: -40, duration: 0.14, ease: "power2.in" }, fin - 0.08);
+        });
+        tl.to(["#frase7 .l1", "#caja7"], { opacity: 0, y: -30, duration: 0.3, ease: "power2.in" }, 26.3);
+        // el logo se arma: el planeta aparece, el satélite da una vuelta dibujando el anillo y queda girando
+        const C7 = 911.06;
+        tl.set(["#logo7 .anillo", "#planeta7", "#satl7"], { opacity: 0 }, 0);
+        tl.set("#satl7", { opacity: 1 }, 26.86);
+        tl.fromTo("#planeta7", { scale: 0, opacity: 1 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(2.4)", immediateRender: false }, 26.86);
+        tl.fromTo("#gira7", { rotation: -90 }, { rotation: 270, duration: 0.75, ease: "power2.out", immediateRender: false }, 26.86);
+        tl.fromTo("#aro7c", { attr: { "stroke-dasharray": `0 ${C7}` } }, { attr: { "stroke-dasharray": `${C7} 0` }, duration: 0.75, ease: "power2.out", immediateRender: false }, 26.86);
+        tl.to("#gira7", { rotation: 270 + 112.5 * (30 - 27.61), duration: 30 - 27.61, ease: "none" }, 27.61);
+        tl.fromTo("#marca7", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.35, ease: "expo.out", immediateRender: false }, 27.5);
+        tl.fromTo("#firma7", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out", immediateRender: false }, 27.98);
+        tl.fromTo("#pildora7", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.2)", immediateRender: false }, 28.45);
+
+        window.__timelines["main"] = tl;
+      });
+    </script>
+  </body>
+</html>

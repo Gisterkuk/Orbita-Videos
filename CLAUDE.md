@@ -14,4 +14,6 @@ Este repo tiene la producción de videos de Órbita (tutoriales del panel y prom
   escribe en producción, ni se gasta voz o cupo de Orbi, sin permiso de la persona; claves y datos
   personales nunca entran a este repo (es **público**).
 - Tests de las herramientas: `cd .claude/skills/videos-multiagente && node --test "herramientas/test/*.test.mjs"`.
+- `marketing/`: el área de marketing (contexto de marca, guiones, ideas, laboratorios de HyperFrames y
+  entregas en `marketing/videos/`, que no se versionan). Leé `marketing/CLAUDE.md` antes de trabajar ahí.
 - El skill simple (`videos-tutoriales`, un solo agente) sigue en el repo de Órbita.

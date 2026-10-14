@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <!-- "Una foto" — promo YouTube 16:9 4K. Guion: marketing/guiones/2026-10-09_youtube-4k-guion-de-edicion.md
+         Análisis de la referencia: marketing/referencias/fichas/Dcn6EINyzaa-analisis-visual.md
+         NO EDITAR index.html: se genera con `node construir.mjs A|D` desde plantilla.html. -->
+    <script src="assets/vendor/gsap/gsap.min.js"></script>
+    <script type="importmap">{"imports":{"three":"./assets/vendor/three/three.module.js","three/addons/":"./assets/vendor/three/addons/"}}</script>
+    <!--VERSION-->
+    <style>
+      @font-face { font-family: "Geist"; src: url("assets/fonts/geist-latin.woff2") format("woff2"); font-weight: 100 900; }
+      @font-face { font-family: "Geist Mono"; src: url("assets/fonts/geist-mono-latin.woff2") format("woff2"); font-weight: 100 900; }
+
+      :root {
+        --noche: #05070d;
+        --tinta: #0b1226;
+        --azul: #2563eb;
+        --azul2: #3b82f6;
+        --celeste: #93c5fd;
+        --celeste2: #60a5fa;
+        --hueso: #f8fafc;
+        --coral: #fb7185;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; overflow: hidden; background: var(--noche); }
+      body { font-family: "Geist", sans-serif; color: var(--hueso); -webkit-font-smoothing: antialiased; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--noche); }
+      .clip { position: absolute; inset: 0; overflow: hidden; }
+      .escena { position: absolute; inset: 0; overflow: hidden; opacity: 0; }
+      .cam { position: absolute; inset: 0; }
+      .abs { position: absolute; }
+      .mono { font-family: "Geist Mono", monospace; }
+      .sat { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: var(--celeste); box-shadow: 0 0 18px rgba(147, 197, 253, 0.95), 0 0 60px rgba(96, 165, 250, 0.55), 0 0 140px rgba(59, 130, 246, 0.35); }
+
+      /* ───────── 1 · GANCHO: pantalla partida ───────── */
+      #s1 { background: var(--noche); }
+      #izq { position: absolute; left: 0; top: 0; width: 960px; height: 1080px; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #151a24 0%, #0c0f15 70%); }
+      #der { position: absolute; left: 960px; top: 0; width: 960px; height: 1080px; overflow: hidden; background: radial-gradient(circle at 50% 50%, #0b1226 0%, #05070d 70%); }
+      #divisoria { position: absolute; left: 959px; top: 0; width: 2px; height: 1080px; background: linear-gradient(transparent, rgba(255, 255, 255, 0.18) 20%, rgba(255, 255, 255, 0.18) 80%, transparent); }
+      .rotulo { position: absolute; top: 56px; font: 500 15px/1 "Geist Mono", monospace; letter-spacing: 0.22em; text-transform: uppercase; }
+      #rotIzq { left: 64px; color: rgba(255, 255, 255, 0.42); }
+      #rotDer { left: 1024px; color: var(--celeste); }
+      .rotulo i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 12px; vertical-align: 1px; }
+      #rotIzq i { background: rgba(255, 255, 255, 0.35); }
+      #rotDer i { background: var(--celeste); box-shadow: 0 0 10px var(--celeste); }
+
+      /* El formulario eterno */
+      .form { position: absolute; width: 640px; border-radius: 22px; background: #161b25; border: 1px solid rgba(255, 255, 255, 0.07); padding: 34px 38px; box-shadow: 0 40px 80px rgba(0, 0, 0, 0.45); }
+      .form h4 { font: 600 24px/1 "Geist", sans-serif; color: rgba(255, 255, 255, 0.85); margin-bottom: 26px; }
+      .campo { margin-bottom: 20px; }
+      .campo b { display: block; font: 500 14px/1 "Geist", sans-serif; color: rgba(255, 255, 255, 0.45); margin-bottom: 9px; }
+      .campo b em { font-style: normal; color: var(--coral); margin-left: 4px; }
+      .input { height: 50px; border-radius: 12px; background: #0f131b; border: 1px solid rgba(255, 255, 255, 0.09); padding: 0 16px; display: flex; align-items: center; font: 400 18px/1 "Geist", sans-serif; color: rgba(255, 255, 255, 0.85); white-space: nowrap; overflow: hidden; }
+      .input.alto { height: 110px; align-items: flex-start; padding-top: 15px; }
+      .input .ph { color: rgba(255, 255, 255, 0.22); }
+      .caret { display: inline-block; width: 2px; height: 24px; background: var(--celeste); margin-left: 2px; vertical-align: middle; }
+      .tipeo span { opacity: 0; }
+
+      #lente { position: absolute; left: 480px; top: 540px; width: 0; height: 0; }
+      #lente svg { position: absolute; left: -200px; top: -200px; width: 400px; height: 400px; overflow: visible; }
+      #flashDer { position: absolute; inset: 0; background: #fff; opacity: 0; }
+      #shoeHookWrap { position: absolute; left: 100px; top: 150px; width: 760px; height: 760px; }
+      #brilloHook { position: absolute; inset: 60px; border-radius: 50%; background: radial-gradient(circle, rgba(96, 165, 250, 0.45) 0%, rgba(37, 99, 235, 0.15) 45%, transparent 70%); }
+      #shoeHook { position: absolute; inset: 0; width: 760px; height: 760px; }
+      .chip { position: absolute; height: 46px; padding: 0 20px 0 14px; border-radius: 23px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(147, 197, 253, 0.35); display: flex; align-items: center; gap: 10px; font: 500 18px/1 "Geist", sans-serif; color: #e6efff; white-space: nowrap; backdrop-filter: blur(10px); }
+      .chip i { width: 24px; height: 24px; border-radius: 50%; background: var(--celeste); color: var(--tinta); font: 700 14px/24px "Geist", sans-serif; text-align: center; font-style: normal; }
+      #publicadoHook { position: absolute; left: 400px; top: 880px; height: 50px; padding: 0 26px; border-radius: 25px; background: var(--azul); display: flex; align-items: center; gap: 10px; font: 600 19px/1 "Geist", sans-serif; color: #fff; box-shadow: 0 10px 40px rgba(37, 99, 235, 0.6); }
+
+      /* Gancho D: tipografía cinética */
+      #gD { position: absolute; inset: 0; }
+      #gDfondo { position: absolute; left: 640px; top: 0; opacity: 0.18; filter: blur(3px); }
+      #gDtexto { position: absolute; left: 0; right: 0; top: 400px; text-align: center; font: 600 86px/1.15 "Geist", sans-serif; letter-spacing: -0.035em; }
+      #gDtexto span { display: inline-block; opacity: 0; }
+      #gDtexto .caja { padding: 0 18px; background: var(--coral); border-radius: 12px; }
+      #gDmira { position: absolute; left: 0; right: 0; top: 700px; text-align: center; font: 500 34px/1 "Geist Mono", monospace; color: var(--celeste); letter-spacing: 0.08em; opacity: 0; }
+
+      /* ───────── 2 · EL PROBLEMA: túnel de campos ───────── */
+      #s2 { background: radial-gradient(ellipse at 50% 45%, #0f1525 0%, #070a12 65%, #040509 100%); }
+      #grilla2 { position: absolute; inset: -200px; background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px); background-size: 80px 80px; }
+      #tunel { position: absolute; inset: 0; perspective: 1400px; perspective-origin: 50% 46%; }
+      .tarjeta { position: absolute; left: 460px; top: 400px; width: 1000px; height: 270px; border-radius: 28px; background: linear-gradient(180deg, #1c2333 0%, #151b28 100%); border: 1px solid rgba(255, 255, 255, 0.16); padding: 36px 44px; box-shadow: 0 50px 100px rgba(0, 0, 0, 0.55); }
+      .tarjeta .meta { font: 500 14px/1 "Geist Mono", monospace; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.35); text-transform: uppercase; margin-bottom: 18px; }
+      .tarjeta .meta em { font-style: normal; color: var(--coral); }
+      .tarjeta .titulo { position: relative; isolation: isolate; display: inline-block; font: 600 56px/1 "Geist", sans-serif; letter-spacing: -0.03em; margin-bottom: 26px; }
+      .tarjeta .titulo .caja { position: absolute; left: -14px; right: -14px; top: -8px; bottom: -10px; border-radius: 12px; background: var(--azul); }
+      .tx { position: relative; }
+      .tarjeta .input { height: 56px; }
+      .chips-vacios { display: flex; gap: 12px; }
+      .chips-vacios i { height: 52px; min-width: 76px; padding: 0 18px; border-radius: 14px; border: 1.5px dashed rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font: 500 18px/1 "Geist", sans-serif; color: rgba(255, 255, 255, 0.3); font-style: normal; }
+      .chips-vacios i.color { min-width: 52px; width: 52px; border-radius: 50%; padding: 0; }
+      #mar { position: absolute; inset: 0; perspective: 1000px; perspective-origin: 50% 18%; opacity: 0; }
+      #marPlano { position: absolute; left: -1400px; top: -1350px; width: 4720px; height: 2600px; }
+      .mini { position: absolute; width: 300px; height: 200px; border-radius: 16px; background: #1d2433; border: 1px solid rgba(255, 255, 255, 0.18); padding: 20px 22px; }
+      .mini i { display: block; height: 14px; border-radius: 7px; background: rgba(255, 255, 255, 0.14); margin-bottom: 14px; }
+      .mini i:nth-child(1) { width: 40%; background: rgba(255, 255, 255, 0.16); }
+      .mini i:nth-child(3) { width: 75%; }
+      .mini u { position: absolute; left: 24px; top: 58px; width: 2px; height: 16px; background: var(--celeste); text-decoration: none; }
+      #porCada { position: absolute; left: 0; right: 0; top: 120px; z-index: 2; text-align: center; font: 600 64px/1 "Geist", sans-serif; letter-spacing: -0.03em; opacity: 0; }
+      #porCada span { position: relative; padding: 0 16px; isolation: isolate; }
+      #porCada .caja { position: absolute; inset: -6px 0 -10px; border-radius: 12px; background: var(--coral); }
+
+      /* ───────── 3 · EL GIRO: puntos → anillo → lente ───────── */
+      #s3 { background: radial-gradient(circle at 50% 50%, #0b1226 0%, #05070d 70%); }
+      #puntos3 { position: absolute; inset: 0; }
+      #puntos3 i { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px rgba(255, 255, 255, 0.8); }
+      #iris { position: absolute; left: 960px; top: 540px; width: 0; height: 0; }
+      #iris svg { position: absolute; left: -330px; top: -330px; width: 660px; height: 660px; overflow: visible; }
+      #pregunta { position: absolute; left: 0; right: 0; top: 860px; text-align: center; font: 500 40px/1 "Geist", sans-serif; letter-spacing: -0.02em; color: rgba(255, 255, 255, 0.9); }
+      #pregunta span { display: inline-block; opacity: 0; }
+      #pregunta .azul { color: var(--celeste); }
+
+      /* ───────── 4 · LA SOLUCIÓN: mundo luminoso ───────── */
+      #s4 { background: #dfe9f2; }
+      #lago { position: absolute; left: -96px; top: -54px; width: 2112px; height: 1188px; background: url("assets/media/lago.jpg") 50% 60% / cover no-repeat; }
+      #velo4 { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(240, 246, 252, 0.55) 0%, rgba(240, 246, 252, 0.25) 60%, rgba(240, 246, 252, 0.05) 100%); }
+      #tarjeta4 { position: absolute; left: 550px; top: 150px; width: 820px; height: 780px; border-radius: 30px; background: rgba(255, 255, 255, 0.72); border: 1px solid rgba(255, 255, 255, 0.9); backdrop-filter: blur(28px) saturate(1.3); box-shadow: 0 40px 120px rgba(15, 35, 80, 0.28), 0 2px 0 rgba(255, 255, 255, 0.8) inset; color: #0f172a; }
+      #t4head { position: absolute; left: 36px; top: 30px; right: 36px; height: 40px; display: flex; align-items: center; justify-content: space-between; }
+      #t4head h3 { font: 650 26px/1 "Geist", sans-serif; letter-spacing: -0.02em; }
+      #avanzado { height: 34px; padding: 0 14px; border-radius: 17px; background: linear-gradient(90deg, #dbeafe, #e0e7ff); border: 1px solid #bfdbfe; display: flex; align-items: center; gap: 7px; font: 600 14px/1 "Geist", sans-serif; color: #1d4ed8; }
+      #slotFoto { position: absolute; left: 36px; top: 96px; width: 330px; height: 330px; border-radius: 20px; overflow: hidden; background: repeating-conic-gradient(#e9eef5 0% 25%, #ffffff 0% 50%) 0 0 / 28px 28px; border: 1.5px dashed #c3cfdd; }
+      #fotoCv { position: absolute; inset: 0; width: 330px; height: 330px; }
+      #scan { position: absolute; left: 0; top: 0; width: 330px; height: 3px; background: var(--celeste2); box-shadow: 0 0 18px 4px rgba(96, 165, 250, 0.9); opacity: 0; }
+      #flashFoto { position: absolute; inset: 0; background: #fff; opacity: 0; }
+      #slotRotulo { position: absolute; left: 36px; top: 440px; width: 330px; text-align: center; font: 500 14px/1.3 "Geist", sans-serif; color: #64748b; }
+      .f4 { position: absolute; left: 400px; width: 384px; }
+      .f4 b { display: flex; align-items: center; justify-content: space-between; font: 600 14px/1 "Geist", sans-serif; color: #475569; margin-bottom: 8px; }
+      .f4 b .ok { width: 20px; height: 20px; border-radius: 50%; background: #22c55e; color: #fff; font: 700 12px/20px "Geist", sans-serif; text-align: center; opacity: 0; }
+      .f4 .in { min-height: 48px; border-radius: 12px; background: rgba(255, 255, 255, 0.85); border: 1px solid #dbe3ee; padding: 13px 14px; font: 500 17px/1.35 "Geist", sans-serif; color: #0f172a; }
+      .f4 .in .ph { color: #a6b2c2; }
+      .f4 .in.desc { min-height: 120px; font-size: 15.5px; line-height: 1.45; color: #334155; }
+      #fNombre { top: 96px; } #fCat { top: 186px; } #fDesc { top: 276px; } #fVar { top: 438px; }
+      .swatches { display: flex; gap: 10px; margin-bottom: 12px; }
+      .swatches i { width: 38px; height: 38px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1.5px #cbd5e1; opacity: 0; }
+      .swatches i.sel { box-shadow: 0 0 0 3px var(--azul); }
+      .talles { display: flex; gap: 8px; }
+      .talles i { height: 36px; min-width: 50px; border-radius: 10px; background: #fff; border: 1px solid #dbe3ee; display: flex; align-items: center; justify-content: center; font: 600 15px/1 "Geist", sans-serif; color: #334155; font-style: normal; opacity: 0; }
+      #t4pie { position: absolute; left: 36px; right: 36px; bottom: 32px; height: 60px; display: flex; justify-content: flex-end; gap: 14px; }
+      #borrador { height: 60px; padding: 0 26px; border-radius: 16px; background: rgba(255, 255, 255, 0.7); border: 1px solid #dbe3ee; display: flex; align-items: center; font: 600 18px/1 "Geist", sans-serif; color: #475569; }
+      #publicar { position: relative; height: 60px; width: 200px; border-radius: 16px; background: var(--azul); display: flex; align-items: center; justify-content: center; gap: 10px; font: 650 19px/1 "Geist", sans-serif; color: #fff; box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45); overflow: hidden; }
+      #publicar .b2 { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px; background: #16a34a; opacity: 0; }
+      #ramas4 { position: absolute; left: 0; top: 0; width: 820px; height: 780px; overflow: visible; pointer-events: none; }
+      #ramas4 path { fill: none; stroke: var(--celeste2); stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.9)); }
+      #satScan { position: absolute; left: 0; top: 0; }
+      #heroWrap { position: absolute; inset: 0; pointer-events: none; }
+      #brilloHero { position: absolute; left: 1060px; top: 120px; width: 820px; height: 820px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(191, 219, 254, 0.6) 35%, rgba(147, 197, 253, 0) 70%); opacity: 0; }
+      #heroCv { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+      #cursor { position: absolute; left: 0; top: 0; width: 34px; height: 34px; opacity: 0; }
+      #cursor svg { width: 34px; height: 34px; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35)); }
+      #onda { position: absolute; left: 0; top: 0; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 50%; border: 3px solid var(--celeste2); opacity: 0; }
+
+      /* ───────── 5 · EL RESULTADO: la tienda ───────── */
+      #s5 { background: radial-gradient(circle at 50% 50%, #ffffff 0%, #e6f0ff 40%, #c7dcff 100%); }
+      .ola { position: absolute; left: 960px; top: 540px; width: 0; height: 0; }
+      .ola i { position: absolute; left: -300px; top: -300px; width: 600px; height: 600px; border-radius: 50%; border: 60px solid rgba(96, 165, 250, 0.16); }
+      #abanico { position: absolute; left: 960px; top: 540px; width: 0; height: 0; }
+      .prod { position: absolute; left: -130px; top: -380px; width: 260px; height: 340px; border-radius: 24px; background: #fff; box-shadow: 0 24px 60px rgba(15, 35, 80, 0.25); overflow: hidden; }
+      .prod canvas { display: block; width: 260px; height: 250px; }
+      .prod b { display: block; padding: 14px 18px 4px; font: 600 18px/1.1 "Geist", sans-serif; color: #0f172a; }
+      .prod small { display: block; padding: 0 18px; font: 500 14px/1.2 "Geist", sans-serif; color: #475569; }
+      #centro5 { position: absolute; left: 960px; top: 540px; width: 0; height: 0; }
+      #centro5 i { position: absolute; left: -46px; top: -46px; width: 92px; height: 92px; border-radius: 50%; background: var(--azul); box-shadow: 0 0 0 14px rgba(255, 255, 255, 0.85), 0 20px 60px rgba(37, 99, 235, 0.5); }
+      #centro5 i::after { content: ""; position: absolute; left: 33px; top: 33px; width: 26px; height: 26px; border-radius: 50%; background: var(--celeste); box-shadow: 0 0 14px var(--celeste); }
+      #url5 { position: absolute; left: 0; right: 0; top: 70px; margin: 0 auto; width: max-content; height: 54px; padding: 0 24px 0 18px; border-radius: 27px; background: rgba(255, 255, 255, 0.9); box-shadow: 0 10px 30px rgba(15, 35, 80, 0.15); display: flex; align-items: center; gap: 12px; font: 500 20px/1 "Geist Mono", monospace; color: #0f172a; }
+      #url5 i { width: 12px; height: 12px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+      #lema5 { position: absolute; left: 0; right: 0; top: 490px; text-align: center; font: 600 84px/1 "Geist", sans-serif; letter-spacing: -0.04em; color: #0f172a; }
+      #lema5 span { display: inline-block; opacity: 0; }
+      #lema5 .punto { display: inline-block; width: 22px; height: 22px; margin-left: 6px; border-radius: 50%; background: var(--azul2); box-shadow: 0 0 16px var(--celeste2); vertical-align: 2px; }
+
+      /* ───────── 6 · CIERRE: el cielo ───────── */
+      #s6 { background: #7fb2ea; }
+      #flores { position: absolute; left: -96px; top: -54px; width: 2112px; height: 1188px; background: url("assets/media/flores.jpg") 50% 70% / cover no-repeat; }
+      #velo6 { position: absolute; inset: 0; background: radial-gradient(ellipse 760px 420px at 50% 40%, rgba(12, 35, 90, 0.42) 0%, rgba(12, 35, 90, 0.18) 55%, rgba(12, 35, 90, 0) 100%), linear-gradient(180deg, rgba(30, 64, 175, 0.2) 0%, rgba(30, 64, 175, 0) 55%); }
+      #frase6 { position: absolute; left: 0; right: 0; top: 300px; text-align: center; font: 600 80px/1.15 "Geist", sans-serif; letter-spacing: -0.04em; color: #fff; text-shadow: 0 4px 30px rgba(15, 35, 80, 0.35); }
+      #frase6 .l { display: block; }
+      #frase6 .l > span { display: inline-block; opacity: 0; }
+      #frase6 .listo { padding: 0 18px; color: var(--azul); text-shadow: none; background: #fff; border-radius: 16px; box-shadow: 0 10px 40px rgba(15, 35, 80, 0.25); }
+      #logo6 { position: absolute; left: 960px; top: 320px; width: 0; height: 0; }
+      #logo6 svg { position: absolute; left: -110px; top: -110px; width: 220px; height: 220px; overflow: visible; }
+      #marca6 { position: absolute; left: 0; right: 0; top: 450px; text-align: center; font: 900 128px/1 "Geist", sans-serif; letter-spacing: -0.05em; color: #fff; text-shadow: 0 6px 40px rgba(15, 35, 80, 0.35); }
+      #marca6 span { display: inline-block; opacity: 0; }
+      #firma6 { position: absolute; left: 0; right: 0; top: 604px; text-align: center; font: 500 40px/1 "Geist", sans-serif; letter-spacing: -0.02em; color: #fff; text-shadow: 0 3px 20px rgba(15, 35, 80, 0.4); opacity: 0; }
+      #web6 { position: absolute; left: 0; right: 0; top: 684px; margin: 0 auto; width: max-content; height: 52px; padding: 0 26px; border-radius: 26px; background: rgba(255, 255, 255, 0.92); font: 600 22px/52px "Geist Mono", monospace; color: var(--azul); opacity: 0; }
+      #nota6 { position: absolute; left: 0; right: 0; bottom: 40px; margin: 0 auto; width: max-content; padding: 10px 20px; border-radius: 20px; background: rgba(10, 20, 45, 0.72); font: 500 17px/1 "Geist", sans-serif; color: #fff; opacity: 0; }
+
+      /* ───────── Global ───────── */
+      #flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+      #vineta { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, transparent 62%, rgba(2, 6, 23, 0.22) 100%); }
+      #grano { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: overlay; opacity: 0.12; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="unafoto" data-start="0" data-width="1920" data-height="1080" data-duration="__DURACION__" data-fps="60">
+      <audio id="voz" src="__AUDIO__" data-start="0" data-duration="__DURACION__" data-track-index="9" data-volume="1"></audio>
+
+      <!-- 1 · GANCHO -->
+      <section id="s1clip" class="clip" data-start="0" data-duration="__DURACION__" data-track-index="1">
+        <div id="s1" class="escena">
+          <div id="izq">
+            <div class="cam" id="camIzq"><div id="formEterno" class="form" style="left: 160px; top: 140px"></div></div>
+          </div>
+          <div id="der">
+            <div id="lente">
+              <svg viewBox="-200 -200 400 400">
+                <circle id="lenteAro" r="120" fill="none" stroke="#93c5fd" stroke-width="3" stroke-dasharray="754" stroke-dashoffset="754" />
+                <circle id="lenteAro2" r="150" fill="none" stroke="rgba(147,197,253,0.35)" stroke-width="1.5" stroke-dasharray="6 10" />
+              </svg>
+              <i class="sat" id="satHook" style="left: 0; top: 0"></i>
+            </div>
+            <div id="shoeHookWrap"><div id="brilloHook"></div><canvas id="shoeHook" width="1520" height="1520"></canvas></div>
+            <div class="chip" id="ch1" style="left: 60px; top: 180px"><i>✓</i>Nombre</div>
+            <div class="chip" id="ch2" style="left: 640px; top: 200px"><i>✓</i>Categoría</div>
+            <div class="chip" id="ch3" style="left: 50px; top: 760px"><i>✓</i>Descripción</div>
+            <div class="chip" id="ch4" style="left: 660px; top: 740px"><i>✓</i>Variantes</div>
+            <div id="publicadoHook"><span>✓</span>Publicado</div>
+            <div id="flashDer"></div>
+          </div>
+          <div id="divisoria"></div>
+          <div class="rotulo" id="rotIzq"><i></i>La forma de siempre</div>
+          <div class="rotulo" id="rotDer"><i></i>Con Órbita</div>
+          <div id="gD">
+            <div id="gDtexto"></div>
+            <div id="gDmira">mirá esto ↓</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 · EL PROBLEMA -->
+      <section id="s2clip" class="clip" data-start="0" data-duration="__DURACION__" data-track-index="2">
+        <div id="s2" class="escena">
+          <div id="grilla2"></div>
+          <div id="mar"><div id="marPlano"></div></div>
+          <div id="tunel"></div>
+          <div id="porCada"><span><i class="caja"></i><b class="tx" style="font-weight: inherit">por cada producto.</b></span></div>
+        </div>
+      </section>
+
+      <!-- 3 · EL GIRO -->
+      <section id="s3clip" class="clip" data-start="0" data-duration="__DURACION__" data-track-index="3">
+        <div id="s3" class="escena">
+          <div id="puntos3"></div>
+          <div id="iris">
+            <svg viewBox="-330 -330 660 660">
+              <defs><clipPath id="irisClip"><circle r="200" /></clipPath></defs>
+              <circle id="irisAro" r="214" fill="none" stroke="#93c5fd" stroke-width="4" opacity="0" />
+              <g id="aspas" clip-path="url(#irisClip)" opacity="0"></g>
+            </svg>
+            <i class="sat" id="sat3" style="left: 0; top: 0"></i>
+          </div>
+          <div id="pregunta"></div>
+        </div>
+      </section>
+
+      <!-- 4 · LA SOLUCIÓN -->
+      <section id="s4clip" class="clip" data-start="0" data-duration="__DURACION__" data-track-index="4">
+        <div id="s4" class="escena">
+          <div id="lago"></div>
+          <div id="velo4"></div>
+          <div class="cam" id="cam4">
+            <div id="tarjeta4">
+              <div id="t4head"><h3>Nuevo producto</h3><div id="avanzado">✦ Paquete Avanzado</div></div>
+              <div id="slotFoto"><canvas id="fotoCv" width="660" height="660"></canvas><div id="scan"></div><div id="flashFoto"></div></div>
+              <div id="slotRotulo">Foto del producto</div>
+              <div class="f4" id="fNombre"><b>Nombre <span class="ok">✓</span></b><div class="in"><span class="ph">Escribí el nombre…</span><span class="tipeo" id="txNombre"></span></div></div>
+              <div class="f4" id="fCat"><b>Categoría <span class="ok">✓</span></b><div class="in"><span class="ph">Elegí una categoría</span><span class="tipeo" id="txCat"></span></div></div>
+              <div class="f4" id="fDesc"><b>Descripción <span class="ok">✓</span></b><div class="in desc"><span class="ph">Contá cómo es tu producto…</span><span class="tipeo" id="txDesc"></span></div></div>
+              <div class="f4" id="fVar"><b>Variantes <span class="ok">✓</span></b>
+                <div class="swatches"><i style="background: #1d8fd0"></i><i style="background: #e8b8bc"></i><i style="background: #1f2228"></i></div>
+                <div class="talles"><i>38</i><i>39</i><i>40</i><i>41</i><i>42</i><i>43</i></div>
+              </div>
+              <svg id="ramas4" viewBox="0 0 820 780"></svg>
+              <i class="sat" id="satScan" style="opacity: 0"></i>
+              <div id="t4pie"><div id="borrador">Guardar borrador</div><div id="publicar"><span>Publicar</span><div class="b2">✓ Publicado</div></div></div>
+            </div>
+          </div>
+          <div id="cursor"><svg viewBox="0 0 24 24"><path d="M4 2l15 9-6.5 1.6L16 20l-2.6 1.2-3.4-7.3L5 18z" fill="#fff" stroke="#0f172a" stroke-width="1.4" stroke-linejoin="round" /></svg></div>
+          <div id="onda"></div>
+        </div>
+      </section>
+
+      <!-- 5 · LA TIENDA -->
+      <section id="s5clip" class="clip" data-start="0" data-duration="__DURACION__" data-track-index="5">
+        <div id="s5" class="escena">
+          <div class="ola"><i id="ola1"></i></div>
+          <div class="ola"><i id="ola2"></i></div>
+          <div class="ola"><i id="ola3"></i></div>
+          <div id="abanico"></div>
+          <div id="centro5"><i></i></div>
+          <div id="url5"><i></i>tutienda.orbita.site</div>
+          <div id="lema5"></div>
+        </div>
+      </section>
+
+      <section id="heroclip" class="clip" data-start="0" data-duration="__DURACION__" data-track-index="8">
+        <div id="heroWrap"><div id="brilloHero"></div><canvas id="heroCv" width="3840" height="2160"></canvas></div>
+      </section>
+
+      <!-- 6 · CIERRE -->
+      <section id="s6clip" class="clip" data-start="0" data-duration="__DURACION__" data-track-index="6">
+        <div id="s6" class="escena">
+          <div id="flores"></div>
+          <div id="velo6"></div>
+          <div id="frase6"><span class="l"><span>Una</span> <span>foto.</span></span><span class="l"><span>Un</span> <span>producto</span> <span class="listo">listo.</span></span></div>
+          <div id="logo6">
+            <svg viewBox="-110 -110 220 220">
+              <circle id="aro6" r="96" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="7" stroke-dasharray="603.2" stroke-dashoffset="603.2" transform="rotate(-90)" />
+              <circle id="planeta6" r="33" fill="#3b82f6" />
+              <g id="gira6"><circle id="satl6" cx="0" cy="-96" r="17" fill="#93c5fd" /></g>
+            </svg>
+          </div>
+          <div id="marca6"></div>
+          <div id="firma6">Tu negocio, en órbita.</div>
+          <div id="web6">orbita.site</div>
+          <div id="nota6">✦ Escaneo con foto y quitar fondo: Paquete Avanzado</div>
+        </div>
+      </section>
+
+      <section id="fxclip" class="clip" data-start="0" data-duration="__DURACION__" data-track-index="7">
+        <div id="flash"></div>
+        <div id="vineta"></div>
+        <div id="grano"></div>
+      </section>
+    </div>
+
+    <script>/*ESCENAS*/</script>
+    <script type="module" src="zapatilla.js"></script>
+  </body>
+</html>

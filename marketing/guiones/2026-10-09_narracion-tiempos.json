@@ -1,0 +1,382 @@
+{
+ "duracion": 28.64,
+ "palabras": [
+  {
+   "p": "Demasiados",
+   "ini": 0.0,
+   "fin": 0.72
+  },
+  {
+   "p": "chats,",
+   "ini": 0.72,
+   "fin": 1.1
+  },
+  {
+   "p": "planillas,",
+   "ini": 1.52,
+   "fin": 2.04
+  },
+  {
+   "p": "notas,",
+   "ini": 2.34,
+   "fin": 2.82
+  },
+  {
+   "p": "repartidos",
+   "ini": 3.1,
+   "fin": 3.58
+  },
+  {
+   "p": "en",
+   "ini": 3.58,
+   "fin": 3.82
+  },
+  {
+   "p": "mil",
+   "ini": 3.82,
+   "fin": 4.1
+  },
+  {
+   "p": "lugares.",
+   "ini": 4.1,
+   "fin": 4.54
+  },
+  {
+   "p": "Y",
+   "ini": 5.42,
+   "fin": 5.6
+  },
+  {
+   "p": "si",
+   "ini": 5.6,
+   "fin": 5.7
+  },
+  {
+   "p": "todo",
+   "ini": 5.7,
+   "fin": 6.02
+  },
+  {
+   "p": "se",
+   "ini": 6.02,
+   "fin": 6.26
+  },
+  {
+   "p": "conectara.",
+   "ini": 6.26,
+   "fin": 6.84
+  },
+  {
+   "p": "Conocé",
+   "ini": 7.72,
+   "fin": 8.22
+  },
+  {
+   "p": "órbita.",
+   "ini": 8.22,
+   "fin": 8.8
+  },
+  {
+   "p": "Escribí",
+   "ini": 9.56,
+   "fin": 9.96
+  },
+  {
+   "p": "el",
+   "ini": 9.96,
+   "fin": 10.08
+  },
+  {
+   "p": "nombre",
+   "ini": 10.08,
+   "fin": 10.26
+  },
+  {
+   "p": "de",
+   "ini": 10.26,
+   "fin": 10.4
+  },
+  {
+   "p": "un",
+   "ini": 10.4,
+   "fin": 10.5
+  },
+  {
+   "p": "producto,",
+   "ini": 10.5,
+   "fin": 10.86
+  },
+  {
+   "p": "órbite",
+   "ini": 11.22,
+   "fin": 11.58
+  },
+  {
+   "p": "lo",
+   "ini": 11.58,
+   "fin": 11.72
+  },
+  {
+   "p": "describe",
+   "ini": 11.72,
+   "fin": 12.08
+  },
+  {
+   "p": "y",
+   "ini": 12.08,
+   "fin": 12.6
+  },
+  {
+   "p": "mostrá",
+   "ini": 12.6,
+   "fin": 13.0
+  },
+  {
+   "p": "lo",
+   "ini": 13.0,
+   "fin": 13.14
+  },
+  {
+   "p": "en",
+   "ini": 13.14,
+   "fin": 13.28
+  },
+  {
+   "p": "tu",
+   "ini": 13.28,
+   "fin": 13.36
+  },
+  {
+   "p": "tienda.",
+   "ini": 13.36,
+   "fin": 13.68
+  },
+  {
+   "p": "Recibí",
+   "ini": 14.24,
+   "fin": 14.64
+  },
+  {
+   "p": "pedidos,",
+   "ini": 14.64,
+   "fin": 15.1
+  },
+  {
+   "p": "cobra",
+   "ini": 15.36,
+   "fin": 15.5
+  },
+  {
+   "p": "online",
+   "ini": 15.5,
+   "fin": 16.06
+  },
+  {
+   "p": "y",
+   "ini": 16.06,
+   "fin": 16.5
+  },
+  {
+   "p": "llevá",
+   "ini": 16.5,
+   "fin": 16.78
+  },
+  {
+   "p": "la",
+   "ini": 16.78,
+   "fin": 16.88
+  },
+  {
+   "p": "cuenta",
+   "ini": 16.88,
+   "fin": 17.14
+  },
+  {
+   "p": "sin",
+   "ini": 17.14,
+   "fin": 17.46
+  },
+  {
+   "p": "planillas.",
+   "ini": 17.46,
+   "fin": 17.92
+  },
+  {
+   "p": "Juntad",
+   "ini": 18.48,
+   "fin": 18.9
+  },
+  {
+   "p": "todo,",
+   "ini": 18.9,
+   "fin": 19.22
+  },
+  {
+   "p": "uní",
+   "ini": 19.66,
+   "fin": 19.84
+  },
+  {
+   "p": "los",
+   "ini": 19.84,
+   "fin": 19.96
+  },
+  {
+   "p": "puntos",
+   "ini": 19.96,
+   "fin": 20.34
+  },
+  {
+   "p": "y",
+   "ini": 20.34,
+   "fin": 20.86
+  },
+  {
+   "p": "entende",
+   "ini": 20.86,
+   "fin": 21.24
+  },
+  {
+   "p": "que",
+   "ini": 21.24,
+   "fin": 21.52
+  },
+  {
+   "p": "funciona.",
+   "ini": 21.52,
+   "fin": 22.04
+  },
+  {
+   "p": "Un",
+   "ini": 22.96,
+   "fin": 23.16
+  },
+  {
+   "p": "solo",
+   "ini": 23.16,
+   "fin": 23.48
+  },
+  {
+   "p": "lugar",
+   "ini": 23.48,
+   "fin": 23.84
+  },
+  {
+   "p": "para",
+   "ini": 23.84,
+   "fin": 24.08
+  },
+  {
+   "p": "mostrar,",
+   "ini": 24.08,
+   "fin": 24.5
+  },
+  {
+   "p": "vender",
+   "ini": 24.88,
+   "fin": 25.14
+  },
+  {
+   "p": "y",
+   "ini": 25.14,
+   "fin": 25.56
+  },
+  {
+   "p": "entender.",
+   "ini": 25.56,
+   "fin": 26.0
+  },
+  {
+   "p": "Tu",
+   "ini": 26.86,
+   "fin": 26.98
+  },
+  {
+   "p": "negocio",
+   "ini": 26.98,
+   "fin": 27.5
+  },
+  {
+   "p": "en",
+   "ini": 27.5,
+   "fin": 27.98
+  },
+  {
+   "p": "órbita.",
+   "ini": 27.98,
+   "fin": 28.4
+  }
+ ],
+ "pausas": [
+  {
+   "despues_de": "chats,",
+   "ini": 1.1,
+   "dura": 0.42
+  },
+  {
+   "despues_de": "planillas,",
+   "ini": 2.04,
+   "dura": 0.3
+  },
+  {
+   "despues_de": "notas,",
+   "ini": 2.82,
+   "dura": 0.28
+  },
+  {
+   "despues_de": "lugares.",
+   "ini": 4.54,
+   "dura": 0.88
+  },
+  {
+   "despues_de": "conectara.",
+   "ini": 6.84,
+   "dura": 0.88
+  },
+  {
+   "despues_de": "órbita.",
+   "ini": 8.8,
+   "dura": 0.76
+  },
+  {
+   "despues_de": "producto,",
+   "ini": 10.86,
+   "dura": 0.36
+  },
+  {
+   "despues_de": "tienda.",
+   "ini": 13.68,
+   "dura": 0.56
+  },
+  {
+   "despues_de": "pedidos,",
+   "ini": 15.1,
+   "dura": 0.26
+  },
+  {
+   "despues_de": "planillas.",
+   "ini": 17.92,
+   "dura": 0.56
+  },
+  {
+   "despues_de": "todo,",
+   "ini": 19.22,
+   "dura": 0.44
+  },
+  {
+   "despues_de": "funciona.",
+   "ini": 22.04,
+   "dura": 0.92
+  },
+  {
+   "despues_de": "mostrar,",
+   "ini": 24.5,
+   "dura": 0.38
+  },
+  {
+   "despues_de": "entender.",
+   "ini": 26.0,
+   "dura": 0.86
+  }
+ ]
+}

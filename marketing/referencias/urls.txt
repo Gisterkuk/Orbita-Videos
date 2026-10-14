@@ -1,0 +1,10 @@
+# Videos de referencia: una URL (Instagram, TikTok, YouTube…) o la ruta de un video local por línea.
+# Después de la URL podés dejar una nota con " # ": por qué te gustó, qué mirar.
+# Las líneas que empiezan con # se ignoran. Las URLs ya descargadas no se vuelven a bajar.
+#
+# Ejemplo:
+#   https://www.instagram.com/reel/ABC123xyz/  # gancho con texto arriba, editor de video
+
+D:\vegaa\Descargas\Motion designing in 2026.mp4  # referencia 1: motion reel, un punto que atraviesa todo
+D:\vegaa\Descargas\We turn your SaaS into a visual walkthrough—showing the right screen, the right feature, and the.mp4  # referencia 2: SaaS walkthrough, gancho fijo arriba
+https://www.instagram.com/p/Dcn6EINyzaa/  # la voz (tono, pausas, forma de hablar); subtítulos que siguen la narración; ramifica problemas y después la solución con el nombre de la empresa
