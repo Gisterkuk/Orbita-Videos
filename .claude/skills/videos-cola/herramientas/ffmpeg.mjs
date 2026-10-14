@@ -44,4 +44,5 @@ export function sondear(archivo) {
   return { bytes: fs.statSync(archivo).size, ...parsearSonda(salida) }
 }
 
-export const MAX_BYTES = 50 * 1024 * 1024 // el tope de la cola de Órbita (el de Instagram)
+export const MAX_BYTES = 50 * 1024 * 1024 // el tope de la cola de Órbita para marketing (el de Instagram)
+export const MAX_BYTES_TUTORIAL = 250 * 1024 * 1024 // los tutoriales son internos: más margen

@@ -115,6 +115,32 @@ describe('controles de calidad', () => {
   })
 })
 
+describe('tutoriales (internos)', () => {
+  it('preparar admite un tope mayor solo con --tutorial, y nunca más de 250 MB', () => {
+    const mp4 = generar('tuto-base.mp4')
+    assert.throws(() => preparar(mp4, ruta('t1.mp4'), { maxBytes: 100 * 1024 * 1024 }), /50 MB/)
+    assert.equal(preparar(mp4, ruta('t2.mp4'), { maxBytes: 100 * 1024 * 1024, tutorial: true }).recomprimido, false)
+    assert.throws(() => preparar(mp4, ruta('t3.mp4'), { maxBytes: 300 * 1024 * 1024, tutorial: true }), /250 MB/)
+  })
+
+  it('controles --tutorial: horizontal por defecto, mínimo 20 s y tope de peso de 250 MB', () => {
+    const largo = por(medir(generar('tuto-largo.mp4', { ancho: 640, alto: 360, seg: 21 }), { tutorial: true }))
+    assert.equal(largo['formato'].ok, false) // 640x360 es 16:9 pero el lado corto es de menos de 720
+    assert.equal(largo['duración'].ok, true, largo['duración'].detalle)
+    assert.match(largo['peso'].detalle, /máximo 250/)
+    const hd = por(medir(generar('tuto-hd.mp4', { ancho: 1280, alto: 720, seg: 21 }), { tutorial: true }))
+    assert.equal(hd['formato'].ok, true, hd['formato'].detalle)
+    const corto = por(medir(generar('tuto-corto.mp4', { ancho: 1280, alto: 720, seg: 12 }), { tutorial: true }))
+    assert.equal(corto['duración'].ok, false) // un reel de 12 s pasa, un tutorial de 12 s no
+  })
+
+  it('un video vertical falla el formato de un tutorial', () => {
+    assert.equal(por(medir(generar('tuto-vertical.mp4', { seg: 21 }), { tutorial: true }))['formato'].ok, false)
+  })
+})
+
+function por(c) { return Object.fromEntries(c.map((x) => [x.nombre, x])) }
+
 describe('subir', () => {
   let servidor, recibido, url
   before(async () => {

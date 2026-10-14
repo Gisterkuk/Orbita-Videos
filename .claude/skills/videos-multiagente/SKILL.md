@@ -69,6 +69,7 @@ Rutas relativas a la carpeta del video (`cd ~/orbita-videos/<slug>`), salvo `pre
 8. `node herramientas/sfx.mjs` → `node herramientas/render.mjs out/<slug>-sin-voz.mp4` → control de calidad (`referencia/calidad.md`).
 9. Voz: adaptar `guion.json` (una frase por paso, voseo, sin instrucciones de estilo) → `GEMINI_KEY_FILE=<ruta> node herramientas/tts.mjs` → `node herramientas/limpiar-voz.mjs` → `node editar.mjs --voz voz.json` → `node herramientas/sfx.mjs out/sfx-voz.json` → `node herramientas/mezclar-voz.mjs` → `TL=compose/tl-voz.json WAV=out/audio-voz.wav node herramientas/render.mjs out/<slug>-con-voz.mp4` → calidad.
 10. Copiar a `marketing/videos/<tipo>/` del repo (tutoriales, reels, youtube o anuncios; nombre `AAAA-MM-DD_slug_formato.mp4`; sin commitear, ya está en `.gitignore`), mandarlo con SendUserFile y reportar según `referencia/calidad.md`.
+11. Si el video es un TUTORIAL de la lista (o la persona pide dejarlo en la cola), subirlo por el conector de Órbita como tipo `TUTORIAL` con el campo `tutorial` del ítem de la lista y marcar antes el ítem como EN_PROCESO: ver `videos-cola` § Tutoriales (`tutoriales_listar`, `tutoriales_actualizar`, `videos_pedir_subida`, `videos_registrar`, `videos_avisar`). Es interno: no se publica en redes.
 
 Renders largos (~5 min) y tomas: en segundo plano. Nunca cortar con `| head` un script que escribe al final.
 
