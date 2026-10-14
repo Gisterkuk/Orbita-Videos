@@ -4,15 +4,15 @@ Vos no podés escuchar: no sabés si una voz suena natural ni si una pista es pe
 dos decisiones **las toma una persona**, una sola vez, y después se reutilizan.
 
 ## Voz
+- La voz **por defecto es la del equipo, `8mBRP99B2Ng2QwsJMFQl`** (ElevenLabs, modelo `eleven_v4`, tono original). Solo se cambia si la persona lo pide.
 - Se elige **antes de la primera tanda**: mandá 3–4 muestras cortas (la misma frase con distintas voces, en mp3) y que la
   persona elija. Lo elegido se anota en `~/orbita-videos/cola/preferencias.json` (fuera del repo) para no preguntarlo de nuevo:
-  `{ "voz": "<id o nombre>", "motor": "gemini | elevenlabs", "tempo": 1.08 }`.
+  `{ "voz": "<id de la voz de ElevenLabs>", "tempo": 1.08 }`.
 - Tono de **anuncio**, no de guía: frases cortas, preguntas que enganchan («¿Qué se vende más? Preguntale a Orbi»).
   Voseo rioplatense. Una frase por bloque, hasta 15 palabras. Nada de instrucciones de estilo dentro del texto: el TTS las lee en voz alta.
-- Las claves del motor de voz las pasa la persona por variable de entorno en esa sesión. No las busques, no las guardes.
-- **Costo:** un reel de ~30 s son unas 8–10 frases. Con Gemini TTS ronda los centavos de dólar por video
-  (en el repo se midieron ~US$ 0,002 por frase corta); con ElevenLabs depende del plan y de los créditos que queden.
-  Decile a la persona la cifra estimada de la tanda **antes** de generar, y cortá si se pasa.
+- La clave de ElevenLabs la pasa la persona por la variable de entorno `ELEVEN_KEY` en esa sesión. No la busques, no la guardes ni la imprimas.
+- **Costo:** un reel de ~30 s son unas 8–10 frases (unos 300–500 caracteres). ElevenLabs cobra por caracter y descuenta de los créditos del
+  plan: decile a la persona los caracteres estimados de la tanda y cuántos créditos le quedan (los ve en su cuenta) **antes** de generar, y cortá si se pasa.
 - Si usan una voz clonada, tiene que ser de una persona del equipo que dio su consentimiento. Nunca la voz de un tercero.
 
 ## Música

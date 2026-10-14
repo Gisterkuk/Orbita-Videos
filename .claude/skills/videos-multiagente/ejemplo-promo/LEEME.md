@@ -24,7 +24,7 @@ El reel muestra TODO en el celular (tienda y panel, sin recortes); la versión 1
 Cadena completa:
 ```
 node grabar-*.mjs ; node herramientas/scrolls.mjs tienda ; node herramientas/scrolls.mjs rubros
-GEMINI_KEY_FILE=… node herramientas/tts.mjs guion-promo.json
+ELEVEN_KEY=… node herramientas/tts.mjs guion-promo.json
 node herramientas/limpiar-voz.mjs voz-promo.json
 node herramientas/tramos-voz.mjs voz-promo.json --tempo 1.08
 SOLO=b1,y1 node herramientas/tramos-voz.mjs voz-promo.json --achicar 0.15

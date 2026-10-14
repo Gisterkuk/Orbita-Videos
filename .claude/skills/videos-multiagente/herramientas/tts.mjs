@@ -1,27 +1,32 @@
-// Narración con Gemini TTS: una frase por pedido → out/voz/<id>.wav y voz.json
+// Narración con ElevenLabs: una frase por pedido → out/voz/<id>.wav y voz.json
 // (el guion con la duración real de cada frase, para el editor con voz).
 //
-//   GEMINI_KEY_FILE=<ruta/.env> node herramientas/tts.mjs [guion.json]
-//   SOLO=id1,id2 …   regenera solo esas frases (no reescribe voz.json)
-//   MODELO=…         fuerza un modelo (por defecto: el Flash TTS estándar más nuevo)
+//   ELEVEN_KEY=<clave> node herramientas/tts.mjs [guion.json]
+//   SOLO=id1,id2 …   regenera solo esas frases (no reescribe voz.json de cero: conserva las demás)
 //
-// IMPORTANTE: NO mandar instrucciones de estilo en el texto ("Leé con tono…",
-// "Say warmly: …"): el modelo las LEE en voz alta (frases de 3 s salían de 15 s).
-// El acento se fija con speechConfig.languageCode = 'es-AR'; el voseo del guion
-// hace el resto. systemInstruction no está habilitado en estos modelos.
+// En guion.json: `voz` (id de la voz; por defecto la del equipo, 8mBRP99B2Ng2QwsJMFQl), `modelo` (por defecto eleven_v4),
+// `ajustes` (voice_settings, opcional) e `idioma` (language_code, opcional: no todos los modelos lo aceptan).
+//
+// La clave va SOLO en la variable de entorno ELEVEN_KEY (o ELEVENLABS_API_KEY) de esa sesión: no se lee de archivos ni se imprime.
+// El plan del equipo solo entrega mp3_44100_128: se decodifica con ffmpeg a WAV 16 bits mono, que es lo que esperan
+// limpiar-voz.mjs, tramos-voz.mjs y el editor.
+//
+// IMPORTANTE: tono original. NO mandar instrucciones de estilo ni etiquetas de tono en el texto: el modelo las puede leer en voz alta.
 import fs from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { ffmpegPath } from '../../videos-cola/herramientas/ffmpeg.mjs'
 
-function clave() {
-  if (process.env.GEMINI_API_KEY) return process.env.GEMINI_API_KEY.trim()
-  const f = process.env.GEMINI_KEY_FILE
-  if (f && fs.existsSync(f)) {
-    const m = fs.readFileSync(f, 'utf8').match(/^\s*GEMINI_API_KEY\s*=\s*["']?([^"'\r\n]+)/m)
-    if (m) return m[1].trim()
-  }
-  throw new Error('Falta la clave: GEMINI_API_KEY o GEMINI_KEY_FILE=<archivo .env con GEMINI_API_KEY=…> (pedila a la persona; nunca la busques por tu cuenta)')
+export const VOZ_DEL_EQUIPO = '8mBRP99B2Ng2QwsJMFQl'
+export const MODELO_POR_DEFECTO = 'eleven_v4'
+const FORMATO = 'mp3_44100_128'
+const RATE = 44100
+
+const KEY = (process.env.ELEVEN_KEY ?? process.env.ELEVENLABS_API_KEY ?? '').trim()
+if (!KEY) {
+  console.error('Falta la clave de ElevenLabs: definí la variable de entorno ELEVEN_KEY en esta sesión (la pasa la persona; nunca la busques en archivos ni la imprimas).')
+  process.exit(2)
 }
-const KEY = clave()
-const API = 'https://generativelanguage.googleapis.com/v1beta'
+const API = (process.env.ELEVEN_API_URL ?? 'https://api.elevenlabs.io').replace(/\/$/, '')
 const GUION = process.argv[2] ?? 'guion.json'
 const G = JSON.parse(fs.readFileSync(GUION, 'utf8'))
 const SOLO = process.env.SOLO
@@ -29,36 +34,26 @@ const SOLO = process.env.SOLO
 const VOZ_OUT = process.env.VOZ ?? GUION.replace(/guion/, 'voz')
 fs.mkdirSync('out/voz', { recursive: true })
 
-async function modelo() {
-  if (process.env.MODELO) return process.env.MODELO
-  const r = await fetch(`${API}/models?pageSize=200`, { headers: { 'x-goog-api-key': KEY } })
-  if (!r.ok) throw new Error('No pude listar modelos: ' + r.status)
-  const nombres = (await r.json()).models.map(m => m.name.replace('models/', '')).filter(n => /tts/i.test(n))
-  // Flash estándar (ni lite ni preview ni pro): buena calidad sin ser el más caro
-  const estandar = nombres.filter(n => /flash-tts$/.test(n)).sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
-  const elegido = estandar[0] ?? nombres.find(n => /flash/.test(n)) ?? nombres[0]
-  console.log('Modelos TTS disponibles:', nombres.join(', '), '→', elegido)
-  return elegido
-}
-async function decir(mod, voz, texto) {
+async function decir(voz, modelo, texto) {
+  const cuerpo = { text: texto, model_id: modelo }
+  if (G.ajustes) cuerpo.voice_settings = G.ajustes
+  if (G.idioma) cuerpo.language_code = G.idioma
   for (let intento = 1; intento <= 4; intento++) {
-    const r = await fetch(`${API}/models/${mod}:generateContent`, {
-      method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': KEY },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: texto }] }],
-        generationConfig: { responseModalities: ['AUDIO'], speechConfig: { languageCode: G.idioma ?? 'es-AR', voiceConfig: { prebuiltVoiceConfig: { voiceName: voz } } } },
-      }),
+    const r = await fetch(`${API}/v1/text-to-speech/${encodeURIComponent(voz)}?output_format=${FORMATO}`, {
+      method: 'POST', headers: { 'content-type': 'application/json', 'xi-api-key': KEY, accept: 'audio/mpeg' }, body: JSON.stringify(cuerpo),
     })
-    if (r.ok) {
-      const j = await r.json()
-      const p = j.candidates?.[0]?.content?.parts?.find(x => x.inlineData)
-      if (!p) throw new Error('Respuesta sin audio: ' + JSON.stringify(j).slice(0, 300))
-      return { pcm: Buffer.from(p.inlineData.data, 'base64'), rate: Number((p.inlineData.mimeType.match(/rate=(\d+)/) || [])[1] || 24000), tokens: j.usageMetadata?.candidatesTokenCount ?? 0 }
-    }
+    if (r.ok) return Buffer.from(await r.arrayBuffer())
     if (r.status === 429 || r.status >= 500) { await new Promise(res => setTimeout(res, 2000 * intento)); continue }
-    throw new Error(`TTS ${r.status}: ${(await r.text()).slice(0, 300)}`)
+    throw new Error(`ElevenLabs ${r.status}: ${(await r.text()).slice(0, 300)}`)
   }
-  throw new Error('TTS: demasiados reintentos')
+  throw new Error('ElevenLabs: demasiados reintentos')
+}
+// mp3 → PCM 16 bits mono a 44,1 kHz
+function decodificar(mp3) {
+  const r = spawnSync(ffmpegPath(), ['-hide_banner', '-nostdin', '-loglevel', 'error', '-i', 'pipe:0', '-f', 's16le', '-ac', '1', '-ar', String(RATE), 'pipe:1'], { input: mp3, maxBuffer: 256 * 1024 * 1024 })
+  if (r.error) throw new Error(`No se pudo ejecutar ffmpeg (${r.error.message}). Instalalo o definí FFMPEG con su ruta.`)
+  if (r.status !== 0 || !r.stdout?.length) throw new Error(`ffmpeg no pudo leer el audio: ${String(r.stderr ?? '').slice(-300)}`)
+  return r.stdout
 }
 function recortar(pcm, rate) {
   const n = pcm.length / 2, th = 32768 * Math.pow(10, -45 / 20), win = Math.round(rate * .01)
@@ -75,22 +70,22 @@ function wav(pcm, rate) {
   return Buffer.concat([h, pcm])
 }
 
-const mod = await modelo()
-const voz = G.voz ?? 'Achird'
+const voz = G.voz ?? VOZ_DEL_EQUIPO
+const modelo = G.modelo ?? MODELO_POR_DEFECTO
 const frases = []
-let tokens = 0
+let caracteres = 0
 for (const fr of G.frases.filter(f => !SOLO || SOLO.split(',').includes(f.id))) {
-  const r = await decir(mod, voz, fr.texto)
-  tokens += r.tokens
-  const rec = recortar(r.pcm, r.rate)
-  fs.writeFileSync(`out/voz/${fr.id}.wav`, wav(rec, r.rate))
-  const dur = rec.length / 2 / r.rate
+  const mp3 = await decir(voz, modelo, fr.texto)
+  caracteres += fr.texto.length
+  const rec = recortar(decodificar(mp3), RATE)
+  fs.writeFileSync(`out/voz/${fr.id}.wav`, wav(rec, RATE))
+  const dur = rec.length / 2 / RATE
   frases.push({ ...fr, dur: +dur.toFixed(3) })
   // una frase corta no debería durar más de ~0,6 s por palabra: si pasa, leyó algo de más
   const palabras = fr.texto.split(/\s+/).length
   console.log(`${fr.id.padEnd(12)} ${dur.toFixed(2)} s${dur > palabras * .6 + 1.5 ? '  ⚠ demasiado larga: ¿leyó algo de más?' : ''}  ${fr.texto}`)
 }
-if (!SOLO) fs.writeFileSync(VOZ_OUT, JSON.stringify({ voz, modelo: mod, frases }, null, 1))
+if (!SOLO) fs.writeFileSync(VOZ_OUT, JSON.stringify({ voz, modelo, frases }, null, 1))
 else {
   // rearmar voz.json en el orden del guion: duraciones nuevas para las frases
   // regeneradas, las de antes para el resto (frases sin audio → aviso)
@@ -100,6 +95,6 @@ else {
   const nuevas = new Set(frases.map(f => f.id))
   const todas = G.frases.map(fr => ({ ...(nuevas.has(fr.id) ? {} : viejo.frases.find(f => f.id === fr.id) ?? {}), ...fr, dur: dur(fr.id) }))
   for (const f of todas) if (f.dur == null) console.warn('⚠ falta el audio de', f.id, '(generalo con SOLO=' + f.id + ')')
-  fs.writeFileSync(VOZ_OUT, JSON.stringify({ voz, modelo: mod, frases: todas }, null, 1))
+  fs.writeFileSync(VOZ_OUT, JSON.stringify({ voz, modelo, frases: todas }, null, 1))
 }
-console.log(`Listo · ${tokens} tokens de audio (≈ US$${(tokens * 9 / 1e6).toFixed(3)} con Flash TTS a US$9/M; verificá el precio vigente) · después: node herramientas/limpiar-voz.mjs`)
+console.log(`Listo · ${caracteres} caracteres enviados a ElevenLabs (gastan créditos del plan; verificá cuántos quedan) · después: node herramientas/limpiar-voz.mjs`)
