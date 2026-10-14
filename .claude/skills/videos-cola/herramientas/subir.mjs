@@ -4,7 +4,6 @@
 // Imprime en JSON { bytes, status }. Después hay que llamar a `videos_registrar` con el videoId.
 import fs from 'node:fs'
 import { pathToFileURL } from 'node:url'
-import { MAX_BYTES } from './ffmpeg.mjs'
 
 export async function subir(archivo, url, { fetchFn = fetch } = {}) {
   if (!fs.existsSync(archivo)) throw new Error(`No existe el archivo: ${archivo}`)
@@ -17,7 +16,6 @@ export async function subir(archivo, url, { fetchFn = fetch } = {}) {
   if (destino.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(destino.hostname)) throw new Error('La dirección de subida tiene que ser https')
   const datos = fs.readFileSync(archivo)
   if (datos.length === 0) throw new Error('El archivo está vacío')
-  if (datos.length > MAX_BYTES) throw new Error(`El video pesa más de ${MAX_BYTES / 1024 / 1024} MB: pasalo por preparar.mjs`)
   // Content-Type exacto: es parte de la firma y, si cambia, el almacenamiento rechaza la subida.
   const res = await fetchFn(destino, { method: 'PUT', headers: { 'Content-Type': 'video/mp4' }, body: datos, signal: AbortSignal.timeout(10 * 60_000) })
   if (!res.ok) throw new Error(`El almacenamiento rechazó la subida (HTTP ${res.status}). Si pasaron más de 10 minutos, pedí una dirección nueva con videos_pedir_subida`)

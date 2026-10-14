@@ -58,13 +58,14 @@ El panorama completo (propósito, costos, controles) está en `docs/marketing/FL
    ```
    node .claude/skills/videos-cola/herramientas/preparar.mjs <render.mp4> <listo.mp4> --max-mb 45
    ```
-   (H.264 + AAC, índice al principio y menos de 45 MB; si ya cumple, no lo recomprime.)
+   (H.264 + AAC con el índice al principio. **No hay tope de peso**: si ya es un mp4 no lo recomprime. Si querés mandarlo por chat y que
+   pese menos, agregá `--max-mb 45`.)
 5. **Controles de calidad:**
    ```
    node .claude/skills/videos-cola/herramientas/controles.mjs <listo.mp4> --formato REEL_9_16
    ```
-   Devuelve `[{ nombre, ok, detalle }]`: formato, duración, peso, volumen (−17,5 a −12,5 LUFS, pico ≤ −1 dBFS),
-   silencios, tramos en negro e imagen congelada. Si falla **formato, duración o peso**, arreglalo (hasta 2 intentos) y
+   Devuelve `[{ nombre, ok, detalle }]`: formato, duración, peso (solo se informa: no hay tope), volumen (−17,5 a −12,5 LUFS, pico ≤ −1 dBFS),
+   silencios, tramos en negro e imagen congelada. Si falla **formato o duración**, arreglalo (hasta 2 intentos) y
    si no se puede, **no lo subas**: descartalo y contalo. Si falla otro control, arreglalo si podés; si no, subilo igual
    **con el control fallado a la vista**: el panel lo marca para que la persona lo mire con atención.
 6. **Subir y registrar:**
@@ -96,8 +97,8 @@ EN_PROCESO, EN_REVISION, HECHO). El flujo:
 2. **Marcalo EN_PROCESO** con `tutoriales_actualizar` antes de empezar, con una nota si hace falta, así nadie lo hace a la vez.
 3. Producilo con **`videos-multiagente`** (es un video del panel real: pide login de la persona, ensayo y aprobación del guion;
    eso no cambia). Entregalo en 16:9 con la versión liviana (1080p a 30 fps).
-4. Subilo con `videos_pedir_subida` (**tipo `TUTORIAL`**, hasta 250 MB) y registralo con `videos_registrar` indicando **`tutorial`**
-   (el id o el título exacto del ítem de la lista). Eso lo pasa solo a EN_REVISION, y a HECHO cuando se aprueba. Preparalo y medilo
+4. Subilo con `videos_pedir_subida` (**tipo `TUTORIAL`**) y registralo con `videos_registrar` indicando **`tutorial`**
+   (el id o el título exacto del ítem de la lista). Eso lo pasa solo a EN_REVISION, y a HECHO cuando se aprueba. Medilo
    con `--tutorial` (ver abajo). Después `videos_avisar` con `tipo TUTORIAL`.
 5. Si un tutorial se hizo por fuera de la cola, marcalo HECHO a mano con `tutoriales_actualizar`. EN_REVISION no se pone a mano.
 Los tutoriales **no se pasan a TikTok ni Instagram**: son internos.
@@ -123,7 +124,7 @@ Cualquiera del equipo puede comentar un video en el panel y tocar «Mejorar con 
 5. **Si dudás de que algo sea verdad** (una función, un precio, un dato), no lo digas en el video: sacalo.
 
 ## Herramientas y tests
-`herramientas/preparar.mjs`, `controles.mjs` (ambos con `--tutorial` para un tutorial: 16:9, hasta 250 MB y hasta una hora), `subir.mjs` y `ffmpeg.mjs` (necesitan ffmpeg: el del kit de
+`herramientas/preparar.mjs`, `controles.mjs` (este con `--tutorial` para un tutorial: 16:9 y hasta una hora), `subir.mjs` y `ffmpeg.mjs` (necesitan ffmpeg: el del kit de
 `~/orbita-videos/kit` o el del sistema, o la variable `FFMPEG`). Tests: `cd .claude/skills/videos-cola && node --test herramientas/test/cola.test.mjs`
 (en Node 20 hay que pasar el archivo; el patrón con `*` anda desde Node 21).
 

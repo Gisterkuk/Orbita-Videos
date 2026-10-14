@@ -68,9 +68,17 @@ describe('preparar', () => {
     assert.equal(r.recomprimido, true)
     assert.ok(r.bytes <= tope, `${r.bytes} > ${tope}`)
   })
-  it('no acepta un tope mayor al de la cola ni un archivo sin video', () => {
-    assert.throws(() => preparar(generar('a.mp4'), ruta('b.mp4'), { maxBytes: 80 * 1024 * 1024 }), /50 MB/)
-    fs.writeFileSync(ruta('audio.m4a'), '')
+  it('no hay tope de peso por defecto: un mp4 solo se reordena y uno que no es mp4 se recodifica sin recortar calidad', () => {
+    const mp4 = generar('sin-tope.mp4')
+    assert.equal(preparar(mp4, ruta('sin-tope-ok.mp4')).recomprimido, false)
+    const mkv = ruta('sin-tope.mkv')
+    assert.equal(correr(['-y', '-i', mp4, '-c', 'copy', mkv]).codigo, 0)
+    const r = preparar(mkv, ruta('desde-mkv.mp4'))
+    assert.equal(r.recomprimido, true)
+    assert.ok(r.bytes > 0 && r.duracionSeg > 2.5)
+  })
+  it('un tope pedido tiene que ser un número válido, y un archivo que no existe falla', () => {
+    assert.throws(() => preparar(generar('a.mp4'), ruta('b.mp4'), { maxBytes: -1 }), /mayor que cero/)
     assert.throws(() => sondear(ruta('no-existe.mp4')), /No existe/)
   })
 })
@@ -84,6 +92,7 @@ describe('controles de calidad', () => {
     assert.equal(c['formato'].ok, true, c['formato'].detalle)
     assert.equal(c['duración'].ok, true, c['duración'].detalle)
     assert.equal(c['peso'].ok, true)
+    assert.doesNotMatch(c['peso'].detalle, /máximo/)
     assert.equal(c['sin negro'].ok, true)
     assert.ok(c['audio'], 'mide el audio')
   })
@@ -116,18 +125,12 @@ describe('controles de calidad', () => {
 })
 
 describe('tutoriales (internos)', () => {
-  it('preparar admite un tope mayor solo con --tutorial, y nunca más de 250 MB', () => {
-    const mp4 = generar('tuto-base.mp4')
-    assert.throws(() => preparar(mp4, ruta('t1.mp4'), { maxBytes: 100 * 1024 * 1024 }), /50 MB/)
-    assert.equal(preparar(mp4, ruta('t2.mp4'), { maxBytes: 100 * 1024 * 1024, tutorial: true }).recomprimido, false)
-    assert.throws(() => preparar(mp4, ruta('t3.mp4'), { maxBytes: 300 * 1024 * 1024, tutorial: true }), /250 MB/)
-  })
-
-  it('controles --tutorial: horizontal por defecto, mínimo 20 s y tope de peso de 250 MB', () => {
+  it('controles --tutorial: horizontal por defecto, mínimo 20 s y el peso solo se informa', () => {
     const largo = por(medir(generar('tuto-largo.mp4', { ancho: 640, alto: 360, seg: 21 }), { tutorial: true }))
     assert.equal(largo['formato'].ok, false) // 640x360 es 16:9 pero el lado corto es de menos de 720
     assert.equal(largo['duración'].ok, true, largo['duración'].detalle)
-    assert.match(largo['peso'].detalle, /máximo 250/)
+    assert.equal(largo['peso'].ok, true)
+    assert.doesNotMatch(largo['peso'].detalle, /máximo/)
     const hd = por(medir(generar('tuto-hd.mp4', { ancho: 1280, alto: 720, seg: 21 }), { tutorial: true }))
     assert.equal(hd['formato'].ok, true, hd['formato'].detalle)
     const corto = por(medir(generar('tuto-corto.mp4', { ancho: 1280, alto: 720, seg: 12 }), { tutorial: true }))

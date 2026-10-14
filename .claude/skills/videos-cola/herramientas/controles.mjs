@@ -3,18 +3,18 @@
 // audio, tramos en negro, imagen congelada y silencios largos. NO reemplaza mirar el video: los controles de
 // contenido (el guion, no nombrar competidores, no prometer lo que no existe) los hace el juez del guion.
 //   node controles.mjs <video.mp4> [--formato REEL_9_16|CUADRADO|HORIZONTAL_16_9] [--sin-voz] [--tutorial]
-// --tutorial: formato horizontal por defecto, entre 20 s y una hora, y hasta 250 MB.
+// --tutorial: formato horizontal por defecto y entre 20 s y una hora. El peso NO tiene tope: solo se informa.
 // Imprime el arreglo en JSON. Código de salida 0 aunque algo falle (el resultado va en los datos).
 import { pathToFileURL } from 'node:url'
-import { correr, MAX_BYTES, MAX_BYTES_TUTORIAL, sondear } from './ffmpeg.mjs'
+import { correr, sondear } from './ffmpeg.mjs'
 
 export const FORMATOS = {
   REEL_9_16: { ancho: 1080, alto: 1920, minSeg: 10, maxSeg: 60 },
   CUADRADO: { ancho: 1080, alto: 1080, minSeg: 10, maxSeg: 60 },
   HORIZONTAL_16_9: { ancho: 1920, alto: 1080, minSeg: 15, maxSeg: 180 },
 }
-// Un tutorial es interno: más largo y más pesado que un reel.
-export const TUTORIAL = { minSeg: 20, maxSeg: 3600, maxBytes: MAX_BYTES_TUTORIAL }
+// Un tutorial es interno: dura más que un reel.
+export const TUTORIAL = { minSeg: 20, maxSeg: 3600 }
 // Umbrales (los mismos de referencia/calidad.md del repo): voz entre -17,5 y -12,5 LUFS y pico real ≤ -1 dBFS.
 export const LUFS_MIN = -17.5
 export const LUFS_MAX = -12.5
@@ -53,7 +53,6 @@ export function medir(archivo, { formato, sinVoz = false, tutorial = false } = {
   const base = FORMATOS[formato]
   if (!base) throw new Error(`Formato desconocido: ${formato}`)
   const regla = tutorial ? { ...base, minSeg: TUTORIAL.minSeg, maxSeg: TUTORIAL.maxSeg } : base
-  const tope = tutorial ? TUTORIAL.maxBytes : MAX_BYTES
   const s = sondear(archivo)
   const controles = []
 
@@ -69,7 +68,7 @@ export function medir(archivo, { formato, sinVoz = false, tutorial = false } = {
 
   const d = s.duracionSeg
   controles.push(control('duración', d !== null && d >= regla.minSeg && d <= regla.maxSeg, d === null ? 'No se pudo leer' : `${f1(d)} s (entre ${regla.minSeg} y ${regla.maxSeg})`))
-  controles.push(control('peso', s.bytes > 0 && s.bytes <= tope, `${f1(s.bytes / 1024 / 1024)} MB (máximo ${tope / 1024 / 1024})`))
+  controles.push(control('peso', s.bytes > 0, `${f1(s.bytes / 1024 / 1024)} MB`))
 
   if (!s.tieneAudio) {
     controles.push(control('audio', sinVoz, sinVoz ? 'Sin audio (es lo esperado)' : 'El video no tiene audio'))
