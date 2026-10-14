@@ -1,0 +1,50 @@
+{
+ "src": "conoce-tu-panel-v2",
+ "repo": "C:/dev/GitHub/Orbita-Frontend-videos",
+ "tl": "compose/tl-voz.json",
+ "tiempos": "out/voz-tiempos.json",
+ "voz": "voz.json",
+ "placa": "assets/placa.mp4",
+ "sfx": "assets/sfx.wav",
+ "titulo": "Conocé tu panel",
+ "lista": [
+  {
+   "n": 1,
+   "t": "Panel y tienda"
+  },
+  {
+   "n": 2,
+   "t": "El menú"
+  },
+  {
+   "n": 3,
+   "t": "Tu equipo"
+  },
+  {
+   "n": 4,
+   "t": "Buscador y avisos"
+  },
+  {
+   "n": 5,
+   "t": "Orbi"
+  },
+  {
+   "n": 6,
+   "t": "Tu tienda"
+  }
+ ],
+ "recreaciones": [
+  {
+   "o0": 31.241,
+   "o1": 36.081,
+   "etiqueta": "Recreación · el «1» de Mensajes no es real",
+   "html": "<style>#rec-0{outline:none!important}</style>\n<div style=\"position:absolute;left:4px;top:346px;width:231px;height:44px;border:2.5px dashed #3B82F6;border-radius:9px\"></div>\n<div style=\"position:absolute;left:179px;top:359px;min-width:18px;height:18px;padding:0 5px;border-radius:9999px;background:#F1F5F9;color:#64748B;font:700 10px/18px 'Geist Mono',ui-monospace,monospace;text-align:center\">1</div>"
+  },
+  {
+   "o0": 44.11,
+   "o1": 53.284,
+   "etiqueta": "Recreación · así lo ve un Empleado",
+   "html": ""
+  }
+ ]
+}

@@ -1,0 +1,151 @@
+{
+ "voz": "elevenlabs:8mBRP99B2Ng2QwsJMFQl",
+ "modelo": "eleven_v4",
+ "idioma": "es",
+ "frases": [
+  {
+   "id": "f1",
+   "texto": "En dos minutos, aprendés a moverte por tu panel de Órbita.",
+   "desde": "a-inicio",
+   "hasta": "a-inicio+1.0"
+  },
+  {
+   "id": "f2",
+   "texto": "Órbita tiene dos pantallas: el panel, donde manejás tu negocio…",
+   "desde": "a-inicio+1.0",
+   "hasta": "a-inicio+2.0"
+  },
+  {
+   "id": "f3",
+   "texto": "…y la tienda, que es lo que ven tus clientes.",
+   "desde": "a-inicio+2.0",
+   "hasta": "a-inicio+3.0"
+  },
+  {
+   "id": "f4",
+   "texto": "Al entrar al panel, arrancás en el Inicio, con tus ventas y tus pedidos.",
+   "desde": "a-inicio+3.0",
+   "hasta": "a-inicio-fin"
+  },
+  {
+   "id": "f5",
+   "texto": "A la izquierda está el menú: pasás el mouse y se abre.",
+   "desde": "a-riel",
+   "hasta": "menu-abierto"
+  },
+  {
+   "id": "f6",
+   "texto": "Tocás un módulo, como Pedidos, y se despliegan sus secciones.",
+   "desde": "clic:nav-pedidos-1.3",
+   "hasta": "subs-pedidos+0.4"
+  },
+  {
+   "id": "f7",
+   "texto": "Al lado de Mensajes, un número te avisa cuántas conversaciones tenés sin leer.",
+   "desde": "a-mensajes",
+   "hasta": "a-menu-lateral"
+  },
+  {
+   "id": "f8",
+   "texto": "Abajo, en Menú lateral, elegís cómo se comporta: en Expandido, queda siempre abierto.",
+   "desde": "a-menu-lateral+0.05",
+   "hasta": "a-fin"
+  },
+  {
+   "id": "f9",
+   "texto": "Un Empleado de tu equipo, por defecto, ve menos módulos.",
+   "desde": "b-dueno+0.05",
+   "hasta": "b-empleado+1.0"
+  },
+  {
+   "id": "f10",
+   "texto": "Ve lo del día a día: pedidos, clientes, productos y mensajes.",
+   "desde": "b-empleado+1.1",
+   "hasta": "b-fin"
+  },
+  {
+   "id": "f11",
+   "texto": "Eso lo decidís vos, en Configuración, Equipo.",
+   "desde": "sC+0.05",
+   "hasta": "equipo+0.3"
+  },
+  {
+   "id": "f12",
+   "texto": "Con Invitar miembro sumás a alguien a tu equipo.",
+   "desde": "c-botones",
+   "hasta": "gestionar"
+  },
+  {
+   "id": "f13",
+   "texto": "En Gestionar roles, cada rol muestra sus permisos.",
+   "desde": "gestionar+0.05",
+   "hasta": "ver-permisos"
+  },
+  {
+   "id": "f14",
+   "texto": "Tocás Ver permisos y destildás lo que no querés que vea.",
+   "desde": "ver-permisos-0.3",
+   "hasta": "clic:destildar+0.4"
+  },
+  {
+   "id": "f15",
+   "texto": "Para que quede, tocás Guardar cambios.",
+   "desde": "pie-modal+0.05",
+   "hasta": "guardar+1.2"
+  },
+  {
+   "id": "f16",
+   "texto": "Si no querés cambiar nada, tocás Cancelar.",
+   "desde": "guardar+1.3",
+   "hasta": "cancelado+0.3"
+  },
+  {
+   "id": "f17",
+   "texto": "Arriba está el buscador: escribís \"buzo\" y aparece el producto.",
+   "desde": "d-buscador",
+   "hasta": "busqueda+0.3"
+  },
+  {
+   "id": "f18",
+   "texto": "La campana te avisa cuando entra un pedido nuevo.",
+   "desde": "clic:campana-0.4",
+   "hasta": "campana+2.6"
+  },
+  {
+   "id": "f19",
+   "texto": "Y acá está Orbi, tu asistente.",
+   "desde": "clic:orbi-0.4",
+   "hasta": "orbi+1.0"
+  },
+  {
+   "id": "f20",
+   "texto": "Elegís una pregunta y la mandás.",
+   "desde": "clic:orbi-pregunta-0.4",
+   "hasta": "clic:orbi-enviar+0.2"
+  },
+  {
+   "id": "f21",
+   "texto": "Te contesta con los datos de tu negocio.",
+   "desde": "clic:orbi-enviar+0.3",
+   "hasta": "orbi-respuesta"
+  },
+  {
+   "id": "f22",
+   "texto": "Para ver tu tienda, tocás tus iniciales y después Ir a la tienda.",
+   "desde": "iniciales-1.2",
+   "hasta": "clic:ir-tienda"
+  },
+  {
+   "id": "f23",
+   "texto": "Acá están los productos que cargás en el panel.",
+   "desde": "recien-1.05",
+   "hasta": "recien+0.4"
+  },
+  {
+   "id": "f24",
+   "texto": "Listo. Ya sabés moverte por tu panel.",
+   "desde": "cierre",
+   "offset": 0.6
+  }
+ ]
+}

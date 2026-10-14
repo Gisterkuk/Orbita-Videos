@@ -1,0 +1,16 @@
+{
+  "name": "video-hf",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "armar": "node scripts/armar.mjs && node scripts/extras.mjs && node %USERPROFILE%/.claude/skills/hyperframes-audio/scripts/carve.mjs --comp index.html --bed musica && node scripts/fundido-musica.mjs",
+    "check": "npx --yes hyperframes@0.8.143 check",
+    "dev": "npx --yes hyperframes@0.8.143 preview",
+    "render-borrador": "cmd /c \"start /belownormal /b /wait npx --yes hyperframes@0.8.143 render --fps 60 --quality delivery --gpu --browser-gpu --workers 3 -o renders/borrador.mp4\"",
+    "render-final": "cmd /c \"start /belownormal /b /wait npx --yes hyperframes@0.8.143 render --fps 60 --quality delivery --gpu --browser-gpu --workers 3 --resolution landscape-4k -o renders/final-4k.mp4\"",
+    "entregar": "node scripts/entregar.mjs renders/final-4k.mp4"
+  },
+  "devDependencies": {
+    "@hyperframes/core": "^0.8.143"
+  }
+}
