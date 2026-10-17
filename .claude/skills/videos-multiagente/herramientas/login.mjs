@@ -11,7 +11,7 @@ await page.goto(LOGIN)
 await page.bringToFront()
 console.log('Ventana abierta en', LOGIN, '— esperando que la persona entre al panel…')
 let ultima = ''
-const limite = Date.now() + 40 * 60_000
+const limite = Date.now() + Number(process.env.LOGIN_MIN ?? 40) * 60_000
 let url = ''
 while (Date.now() < limite && !url) {
   for (const p of ctx.pages()) {
@@ -21,7 +21,7 @@ while (Date.now() < limite && !url) {
   }
   await new Promise(r => setTimeout(r, 1000))
 }
-if (!url) { console.log('No se detectó el login en 40 minutos.'); await ctx.close(); process.exit(1) }
+if (!url) { console.log('No se detectó el login a tiempo.'); await ctx.close(); process.exit(1) }
 await new Promise(r => setTimeout(r, 5000))
 console.log('Login OK:', ctx.pages().map(p => p.url()).find(u => /orbita\.site/.test(u)) ?? url)
 await ctx.close()

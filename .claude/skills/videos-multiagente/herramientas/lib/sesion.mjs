@@ -4,17 +4,27 @@
 // usuario en ese negocio si ve volver uno ya rotado (auth.service.ts, "reuso").
 // Con el perfil, la cookie nueva queda guardada en cada corrida.
 // Nunca abrir dos contextos con este perfil a la vez. Nunca usar storageState.
+import path from 'node:path'
 import { chromium, chromePath, PERFIL_DIR } from './deps.mjs'
+import { tomarCandado } from './candado.mjs'
 
 // dpr > 1: además de emularlo, se fuerza en el arranque (--force-device-scale-factor): sin eso el
 // screencast de CDP entrega cuadros en px CSS (1440×900) aunque la página tenga densidad 2.
+// Con varios videos en paralelo, el perfil se toma con una cerradura ('perfil', ver candado.mjs): si otro proceso
+// lo está usando, esta corrida espera su turno en vez de abrir un segundo navegador con el mismo perfil.
 export async function abrirSesion({ headless = true, dpr = 1, ancho = 1440, alto = 900 } = {}) {
-  const ctx = await chromium.launchPersistentContext(PERFIL_DIR, {
-    executablePath: chromePath(), headless,
-    args: dpr > 1 ? [`--force-device-scale-factor=${dpr}`] : [],
-    viewport: { width: ancho, height: alto }, deviceScaleFactor: dpr,
-    colorScheme: 'light', locale: 'es-AR',
-  })
+  const quien = `${path.basename(process.cwd())}:${path.basename(process.argv[1] ?? 'node')}`
+  const soltarPerfil = await tomarCandado('perfil', { quien, esperaMin: 120 })
+  process.once('exit', soltarPerfil)
+  let ctx
+  try {
+    ctx = await chromium.launchPersistentContext(PERFIL_DIR, {
+      executablePath: chromePath(), headless,
+      args: dpr > 1 ? [`--force-device-scale-factor=${dpr}`] : [],
+      viewport: { width: ancho, height: alto }, deviceScaleFactor: dpr,
+      colorScheme: 'light', locale: 'es-AR',
+    })
+  } catch (e) { soltarPerfil(); throw e }
   await ctx.addInitScript(() => {
     try { localStorage.setItem('orbita-theme', 'light') } catch {}
     // sin el subrayado rojo del corrector del navegador (diccionario en inglés)
@@ -22,6 +32,21 @@ export async function abrirSesion({ headless = true, dpr = 1, ancho = 1440, alto
     new MutationObserver(() => off(document)).observe(document, { childList: true, subtree: true })
   })
   const page = ctx.pages()[0] ?? await ctx.newPage()
+  // El token de renovación rota en cada uso y el servidor revoca TODAS las sesiones si vuelve uno ya rotado
+  // (pasados 30 s). Si el navegador cierra antes de guardar en disco la cookie nueva, la corrida siguiente
+  // presenta la vieja y la sesión cae. Una espera corta antes de cerrar deja que Chromium la escriba.
+  const cerrarSesion = ctx.close.bind(ctx)
+  let cerrado = false
+  ctx.close = async () => { await new Promise(r => setTimeout(r, 4000)); try { await cerrarSesion() } finally { cerrado = true; soltarPerfil() } }
+  // Muchas herramientas llaman process.exit() dentro de un try (el finally que cierra el navegador NO corre) y Playwright
+  // mata Chromium en seco: la cookie con el token rotado, que Chromium escribe a disco hasta ~30 s después, se pierde y la
+  // sesión del panel cae en la corrida siguiente. Mientras el perfil esté abierto, una salida sin cierre ordenado espera 33 s
+  // (bloqueando el hilo; Chromium es otro proceso y sigue guardando) antes de salir de verdad.
+  const salirDeVerdad = process.exit.bind(process)
+  process.exit = codigo => {
+    if (!cerrado) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 33_000)
+    salirDeVerdad(codigo)
+  }
   return { ctx, page }
 }
 
