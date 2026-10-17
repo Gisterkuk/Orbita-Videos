@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { Constelacion } from './constelacion.js'
 import { Oficina } from './oficina.js'
 import { Ficha } from './ficha.js'
+import { crearAcciones } from './acciones.js'
 import { $, el, bonito, recortar, tiempo, renovarTiempos, json, md, escapar, ESTADOS } from './util.js'
 
 const lienzo = $('lienzo')
@@ -39,8 +40,17 @@ const app = {
 const conCapa = capa => Object.create(app, { capaEtiquetas: { value: capa } })
 const constelacion = new Constelacion(conCapa($('capa-c')))
 const oficina = new Oficina(conCapa($('capa-o')))
+const acciones = crearAcciones(app)
+app.refrescar = () => refrescar()
+// Destrabar desde la ficha o el banner: la indicación va al director, sobre ese agente y su último motivo.
+app.destrabar = id => {
+  if (!st.modelo) return
+  const a = st.modelo.agentes.find(x => x.id === id), m = app.miembro(id)
+  acciones.abrirDestrabar(st.modelo, { para: id, nombre: m.nombre, motivo: a?.ultimoMotivo ?? null })
+}
 const ficha = new Ficha(app, $('ficha'))
 const mundo = () => st.vista === 'oficina' ? oficina : constelacion
+window.__sala = { st, constelacion, oficina }   // para inspeccionar desde la consola
 
 // ---------- Tamaño ----------
 function redimensionar() {
@@ -63,7 +73,7 @@ lienzo.addEventListener('pointermove', e => { if (!st.cambiando && e.buttons ===
 lienzo.addEventListener('pointerleave', () => { mundo().hover(null); ocultarTip() })
 lienzo.addEventListener('click', e => { if (st.cambiando || mundo().orbit.fueArrastre()) return; mundo().clic(tocado(e)) })
 window.addEventListener('keydown', e => {
-  if (e.key !== 'Escape' || $('dialogo').open) return
+  if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return
   if (st.agente) app.cerrarFicha(); else if (st.vista === 'oficina') location.hash = '#/'
 })
 
@@ -122,6 +132,7 @@ function pintarOficina() {
   $('o-etapa').textContent = `Etapa ${m.etapa.indice + 1} de ${m.etapa.total} · ${m.etapa.nombre}`
   const pasos = $('o-pasos'); pasos.textContent = ''
   m.etapa.etapas.forEach((n, i) => { const p = el('span', 'paso' + (i < m.etapa.indice ? ' hecho' : i === m.etapa.indice ? ' ahora' : '')); p.title = n; pasos.append(p) })
+  acciones.pintarBotones(m, $('o-acciones'))
 
   const ban = $('o-motivo'); ban.textContent = ''; ban.hidden = !m.motivo
   if (m.motivo) {
@@ -131,7 +142,9 @@ function pintarOficina() {
     t.append(el('b', null, `${m.motivo.nombre} ${m.motivo.veces > 1 ? `rechazó ${m.motivo.veces} veces seguidas` : 'pidió cambios'}`))
     if (m.motivo.motivo) t.append(el('span', 'cita', '«' + recortar(m.motivo.motivo, 200) + '»'))
     const b = el('button', 'enlace', 'Ver su historial →'); b.type = 'button'; b.onclick = () => app.abrirFicha(m.motivo.agente)
-    ban.append(t, b)
+    const d = el('button', 'boton-primario chico', '✋ Destrabar'); d.type = 'button'; d.onclick = () => app.destrabar(m.motivo.agente)
+    const bs = el('div', 'botones'); bs.append(d, b)
+    ban.append(t, bs)
   }
 
   const lista = $('conv-lista'); lista.textContent = ''

@@ -143,7 +143,8 @@ export class Orbitador {
   }
   fueArrastre() { return (this.ultimoMovido ?? 0) > 5 }
   ir({ azim, polar, dist, objetivo, k } = {}) {
-    if (azim != null) this.meta.azim = azim
+    // El giro va por el camino corto (de 170° a -170° son 20°, no 340°).
+    if (azim != null) { const d = Math.atan2(Math.sin(azim - this.meta.azim), Math.cos(azim - this.meta.azim)); this.meta.azim += d }
     if (polar != null) this.meta.polar = polar
     if (dist != null) this.meta.dist = dist
     if (objetivo) this.meta.objetivo.copy(objetivo)

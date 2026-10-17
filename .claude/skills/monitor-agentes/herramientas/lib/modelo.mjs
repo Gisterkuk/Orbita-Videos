@@ -52,7 +52,9 @@ export function rolDe(crudo, pista = []) {
 export function nombreDoc(n) {
   let m
   const vuelta = s => { const r = /-r(\d+)\.md$/.exec(s); return r ? Number(r[1]) : 1 }
-  if (n === 'pedido.md' || n === 'pedidos.md') return 'El pedido del video'
+  if (n === 'pedido.md') return 'El pedido del video'
+  if (n === 'pedidos.md') return 'Pedidos para vos'
+  if (n === 'indicaciones.md') return 'Tus indicaciones'
   if (n === 'guion.md') return 'El guion'
   if (n === 'estado.md') return 'El estado del trabajo'
   if (n === 'informe.md') return 'El informe final'
@@ -94,7 +96,7 @@ export function acciones(evs) {
       if (!de || de === 'director' || !(e.texto ?? '').trim()) continue
       out.push({ ...base, tipo: 'devolucion', de, a: 'director', veredicto: e.veredicto ?? null, motivos: e.veredicto === 'RECHAZADO' ? extraerCambios(e.texto) : [], bloqueantes: e.bloqueantes ?? [], tokens: e.tokens ? (e.tokens.corrida ?? e.tokens.total) : null })
     } else if (e.tipo === 'archivo') {
-      if (!esDocumento(e.archivo)) continue
+      if (!esDocumento(e.archivo) || e.archivo === 'indicaciones.md') continue   // las indicaciones se muestran aparte
       const de = rolDe(e.agente, pista) ?? 'director'
       out.push({ ...base, tipo: 'documento', de, a: 'director', titulo: nombreDoc(e.archivo), archivo: e.archivo, veredicto: e.veredicto ?? null, motivos: e.veredicto === 'RECHAZADO' ? (e.cambios ?? []) : [], bloqueantes: e.bloqueantes ?? [] })
     }

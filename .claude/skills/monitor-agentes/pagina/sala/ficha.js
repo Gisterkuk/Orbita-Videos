@@ -1,7 +1,8 @@
-// Ficha de un agente: todo lo que recibió, devolvió y rechazó, de lo más nuevo a lo más viejo, y por qué.
+// Ficha de un agente: sus vueltas de un vistazo y cada ida y vuelta con el director (qué le pidió → qué respondió),
+// de la más nueva a la más vieja, con el porqué de cada rechazo.
 import { el, recortar, tiempo, fmtTokens, inicial, ROJO, VERDE } from './util.js'
 
-const FILTROS = [['todo', 'Todo'], ['recibio', 'Recibió'], ['devolvio', 'Devolvió'], ['rechazos', 'Rechazos']]
+const FILTROS = [['todo', 'Todo'], ['rechazos', 'Solo rechazos']]
 
 export class Ficha {
   constructor(app, raiz) {
@@ -53,9 +54,12 @@ export class Ficha {
         ahora.classList.add('mal')
         ahora.append(el('span', 'est mal', a.rechazosSeguidos > 1 ? `Pide cambios (${a.rechazosSeguidos} veces seguidas)` : 'Pide cambios'))
         if (a.ultimoMotivo) ahora.append(el('p', null, a.ultimoMotivo))
+        const d = el('button', 'boton-primario chico', '✋ Destrabar'); d.type = 'button'; d.onclick = () => this.app.destrabar(this.id)
+        const pie = el('div', 'ahora-pie'); pie.append(d, el('span', null, 'Dejale una indicación al director sobre este rechazo.')); ahora.append(pie)
       } else if (a.ultimoVeredicto === 'APROBADO') ahora.append(el('span', 'est ok', 'Aprobó lo último que revisó'))
       else ahora.append(el('span', 'est', a.ultimaActividad ? 'Último movimiento ' : 'Sin movimientos'), a.ultimaActividad ? tiempo(a.ultimaActividad) : '')
       r.append(ahora)
+      if (a.veredictos.length) r.append(this.tiraVueltas(a))
     } else {
       r.append(el('p', 'ficha-vacia', 'Este integrante todavía no tuvo tareas en este video.'))
       return
@@ -70,19 +74,66 @@ export class Ficha {
     r.append(fil)
 
     const lista = el('div', 'lista')
-    const acs = this.acciones().filter(x => this.pasa(x)).reverse()
-    if (!acs.length) lista.append(el('p', 'ficha-vacia', 'Nada para mostrar con este filtro.'))
-    for (const x of acs) lista.append(this.tarjeta(x))
+    const hilos = this.hilos()
+    const ver = hilos.map((h, i) => ({ h, n: i + 1 })).filter(({ h }) => this.filtro !== 'rechazos' || h.respuestas.some(x => x.veredicto === 'RECHAZADO')).reverse()
+    if (!ver.length) lista.append(el('p', 'ficha-vacia', 'Nada para mostrar con este filtro.'))
+    for (const { h, n } of ver) lista.append(this.hilo(h, n, a))
     r.append(lista)
+    this.lista = lista
     lista.scrollTop = scroll
   }
 
-  pasa(x) {
-    const id = this.id
-    if (this.filtro === 'recibio') return x.a === id
-    if (this.filtro === 'devolvio') return x.de === id
-    if (this.filtro === 'rechazos') return x.de === id && x.veredicto === 'RECHAZADO'
-    return true
+  // Ida y vuelta: cada pedido que recibió, con lo que devolvió después (hasta el pedido siguiente).
+  hilos() {
+    const id = this.id, out = []
+    let actual = null
+    for (const x of this.acciones()) {
+      if (id === 'director') { out.push({ pedido: null, respuestas: [x] }); continue }
+      if (x.a === id && x.de !== id) { actual = { pedido: x, respuestas: [] }; out.push(actual); continue }
+      // Sin pedido registrado (videos sin hook), cada veredicto nuevo abre su propia vuelta.
+      if (!actual || (x.veredicto && actual.respuestas.some(r => r.veredicto))) { actual = { pedido: null, respuestas: [] }; out.push(actual) }
+      actual.respuestas.push(x)
+    }
+    return out
+  }
+
+  hilo(h, n, a) {
+    const rechazo = h.respuestas.some(x => x.veredicto === 'RECHAZADO')
+    const ok = !rechazo && h.respuestas.some(x => x.veredicto === 'APROBADO')
+    const c = el('section', 'hilo' + (rechazo ? ' mal' : ok ? ' ok' : ''))
+    c.dataset.vuelta = String(n)
+    for (const x of h.respuestas) if (x.veredicto) c.dataset['v' + x.id] = '1'
+    const cab = el('div', 'hilo-cab')
+    const enCurso = !h.respuestas.length && h.pedido && a?.trabajando && h.pedido.ts === a.ultimoEncargo
+    const resumen = rechazo ? 'Pidió cambios' : ok ? 'Aprobó' : h.respuestas.length ? 'Entregó' : enCurso ? 'Trabajando…' : 'Sin respuesta registrada'
+    cab.append(el('b', null, this.id === 'director' ? 'Movimiento' : `Vuelta ${n}`), el('span', 'hilo-est', resumen), tiempo((h.pedido ?? h.respuestas[0]).ts))
+    c.append(cab)
+    if (h.pedido) {
+      const p = el('div', 'pedido')
+      const de = this.app.miembro(h.pedido.de).nombre
+      p.append(el('span', 'rot', h.pedido.tipo === 'encargo' ? `${de} le encargó` : `${de} le escribió`))
+      if (h.pedido.titulo) p.append(el('h3', null, h.pedido.titulo))
+      if (h.pedido.resumen) p.append(el('p', 'dicho', recortar(h.pedido.resumen, 260)))
+      if (h.pedido.texto) { const d = el('details', 'completo'); d.append(el('summary', null, 'Ver el pedido completo'), el('pre', null, h.pedido.texto)); p.append(d) }
+      c.append(p)
+    }
+    for (const x of h.respuestas) c.append(this.tarjeta(x))
+    return c
+  }
+
+  // Tira con cada veredicto: ✗ rechazó, ✓ aprobó. Clic → va a esa vuelta.
+  tiraVueltas(a) {
+    const t = el('div', 'tira'); t.append(el('span', 'rot', 'Sus veredictos'))
+    const fila = el('div', 'tira-fila')
+    a.veredictos.forEach((v, i) => {
+      const b = el('button', 'tira-v ' + (v.veredicto === 'APROBADO' ? 'ok' : 'mal'), `${i + 1} ${v.veredicto === 'APROBADO' ? '✓' : '✗'}`); b.type = 'button'
+      b.title = (v.veredicto === 'APROBADO' ? 'Aprobó' : 'Pidió cambios') + (v.motivos?.[0] ? ': ' + v.motivos[0] : '')
+      b.onclick = () => { this.filtro = 'todo'; this.pintar(true); const h = this.lista?.querySelector(`[data-v${v.id}]`); if (h) { h.scrollIntoView({ behavior: 'smooth', block: 'start' }); h.classList.add('destello'); setTimeout(() => h.classList.remove('destello'), 1600) } }
+      fila.append(b)
+      if (i < a.veredictos.length - 1) fila.append(el('span', 'tira-sep', '→'))
+    })
+    t.append(fila)
+    return t
   }
 
   tarjeta(x) {

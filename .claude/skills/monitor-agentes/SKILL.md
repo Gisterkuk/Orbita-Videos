@@ -33,8 +33,17 @@ Abrir la dirección en el navegador (o en el panel de navegador de la app). Todo
 - **Oficina** (clic en un planeta, `#/v/<slug>`): el director en el centro y cada agente en su puesto, por zonas
   (escritura, revisión, edición, control). Los mensajes viajan como partículas por la línea director↔agente
   (rojo = pidió cambios, verde = aprobó) con un globito; el que trabaja late. Arriba, la etapa y "por qué no avanza".
-- **Ficha** (clic en un agente, `#/v/<slug>/<agente>`): todo lo que recibió, devolvió y rechazó, con el motivo,
-  qué pasó después y el texto o documento completo.
+- **Ficha** (clic en un agente, `#/v/<slug>/<agente>`): la cámara se acerca a su puesto y los demás se atenúan.
+  Arriba, la tira de sus veredictos (1 ✗ → 2 ✗ → 3 ✓, clic para ir a esa vuelta); abajo, cada vuelta como ida y
+  vuelta (qué le pidió el director → qué respondió), con el motivo de cada rechazo y qué pasó después.
+- **Ver el video**: botón en la oficina. Muestra la entrega final (`marketing/videos/<tipo>/AAAA-MM-DD_<slug>_*.mp4`)
+  o, si todavía no hay, los renders de `<slug>-hf/renders/`. Se sirven con `/media` (solo archivos de esa lista).
+- **Pedidos para vos**: lo que el equipo dejó en `produccion/pedidos.md`, con botón para responder.
+- **Destrabar** (en la oficina, en el banner de "por qué está trabado" y en la ficha de quien rechazó): elegís una
+  decisión (aceptar y seguir, el bloqueante no es grave, hacé este cambio, frená) más un detalle. Queda en
+  `produccion/indicaciones.md` como `pendiente`; el director la lee antes de cada ronda y la marca `aplicada`
+  (regla en el SKILL.md de `videos-multiagente`). "Copiar para el chat" arma el mismo texto para pegar en la sesión
+  del director si no está corriendo. Es lo único que la sala escribe, y solo acepta pedidos de la propia página.
 - El modelo (rol de cada evento, estado del video, motivos) se arma en `herramientas/lib/modelo.mjs`; la página
   solo dibuja. Endpoints: `/api/resumen` (todos los videos) y `/api/video?slug=` (uno).
 

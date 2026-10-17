@@ -8,6 +8,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { VIDEOS_DIR, agenteDeArchivo, carpetaProduccion, leerEventos, slugValido, veredictoDe, bloqueantesDe, limpiar, extraerCambios, etapaDe, resumenDe, normalizarEventos } from './lib/eventos.mjs'
 import { modeloDeVideo, resumenDeVideo, frase, EQUIPO } from './lib/modelo.mjs'
+import { videosDe, pedidosDe, leerIndicaciones, agregarIndicacion } from './lib/indicaciones.mjs'
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url))
 const args = process.argv.slice(2)
@@ -105,6 +106,41 @@ function firma(slug) {
   return fs.readdirSync(dir).map(n => { try { const st = fs.statSync(path.join(dir, n)); return `${n}:${st.size}:${st.mtimeMs}` } catch { return n } }).join('|')
 }
 
+// Un video de la lista de ese proyecto (nunca una ruta que mande el navegador), con soporte de "Range" para poder
+// adelantar y atrasar en el reproductor.
+function servirVideo(req, res, slug, id) {
+  const v = videosDe(slug).find(x => x.id === id)
+  if (!v) { res.writeHead(404); return res.end('no encontrado') }
+  const total = fs.statSync(v.ruta).size
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '')
+  if (!m) {
+    res.writeHead(200, { 'Content-Type': 'video/mp4', 'Content-Length': total, 'Accept-Ranges': 'bytes' })
+    return fs.createReadStream(v.ruta).pipe(res)
+  }
+  const ini = m[1] ? Number(m[1]) : Math.max(0, total - Number(m[2]))
+  const fin = m[1] && m[2] ? Math.min(Number(m[2]), total - 1) : total - 1
+  if (ini > fin || ini >= total) { res.writeHead(416, { 'Content-Range': `bytes */${total}` }); return res.end() }
+  res.writeHead(206, { 'Content-Type': 'video/mp4', 'Content-Length': fin - ini + 1, 'Content-Range': `bytes ${ini}-${fin}/${total}`, 'Accept-Ranges': 'bytes' })
+  fs.createReadStream(v.ruta, { start: ini, end: fin }).pipe(res)
+}
+
+// La persona le deja una indicación al director (queda en produccion/indicaciones.md). Solo desde esta misma página:
+// se exige JSON (otra página no puede mandarlo sin permiso del navegador) y el Origin tiene que ser este servidor.
+function recibirIndicacion(req, res, slug) {
+  const origen = req.headers.origin
+  if (origen && !/^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(origen)) return json(res, { error: 'origen no permitido' }, 403)
+  if (!/^application\/json/.test(req.headers['content-type'] ?? '')) return json(res, { error: 'se espera JSON' }, 415)
+  let cuerpo = ''
+  req.on('data', c => { cuerpo += c; if (cuerpo.length > 20000) req.destroy() })
+  req.on('end', () => {
+    let d; try { d = JSON.parse(cuerpo) } catch { return json(res, { error: 'JSON inválido' }, 400) }
+    if (!d.decision && !d.texto) return json(res, { error: 'falta la indicación' }, 400)
+    const corto = (x, n) => typeof x === 'string' ? x.slice(0, n) : null
+    const ind = agregarIndicacion(slug, { para: corto(d.para, 60), nombre: corto(d.nombre, 60), decision: corto(d.decision, 300), texto: corto(d.texto, 4000), motivo: corto(d.motivo, 400) })
+    json(res, { ok: true, indicacion: ind })
+  })
+}
+
 const servidor = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost')
   const slug = url.searchParams.get('slug')
@@ -151,7 +187,12 @@ const servidor = http.createServer((req, res) => {
     const evs = eventosDe(slug)
     return json(res, { slug, eventos: evs, archivos: archivos(slug), etapa: etapaDe(slug), tokens: tokensPorAgente(evs) })
   }
-  if (url.pathname === '/api/video') return json(res, modeloDeVideo(slug, eventosDe(slug), etapaDe(slug)))
+  if (url.pathname === '/api/video') {
+    const videos = videosDe(slug).map(({ ruta, ...v }) => v)
+    return json(res, { ...modeloDeVideo(slug, eventosDe(slug), etapaDe(slug)), videos, pedidos: pedidosDe(slug), indicaciones: leerIndicaciones(slug) })
+  }
+  if (url.pathname === '/media') return servirVideo(req, res, slug, url.searchParams.get('id') ?? '')
+  if (url.pathname === '/api/indicacion' && req.method === 'POST') return recibirIndicacion(req, res, slug)
   if (url.pathname === '/api/archivo') {
     const nombre = url.searchParams.get('nombre') ?? ''
     if (!ARCHIVO_OK.test(nombre)) return json(res, { error: 'nombre inválido' }, 400)

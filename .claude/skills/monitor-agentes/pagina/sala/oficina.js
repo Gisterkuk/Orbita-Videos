@@ -251,8 +251,9 @@ export class Oficina {
   enfocar(id) {
     const p = id ? this.puestos.get(id) : null
     this.desplazamientoMeta = p ? 1 : 0
-    this.orbit.ir(p ? { objetivo: p.pos.clone().multiplyScalar(0.45).setY(1.2), dist: this.distancia() * 0.8 } : { objetivo: new THREE.Vector3(0, 1, 0), dist: this.distancia() })
+    this.orbit.ir(p ? { objetivo: p.pos.clone().multiplyScalar(0.93).setY(1.5), dist: Math.max(10, this.distancia() * 0.22), polar: 1.08, azim: Math.atan2(p.pos.x, p.pos.z) } : { objetivo: new THREE.Vector3(0, 1, 0), dist: this.distancia(), polar: VISTA.polar })
     for (const q of this.puestos.values()) if (q.etiqueta) q.etiqueta.nodo.classList.toggle('elegido', q.id === id)
+    this.app.capaEtiquetas.classList.toggle('enfocada', !!p)
   }
 
   limpiar() {
