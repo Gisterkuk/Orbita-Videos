@@ -141,12 +141,14 @@ window.__timelines["${id}"] = tl;
 `
 fs.mkdirSync('compositions', { recursive: true })
 const escribir = (id, css, body, script) => fs.writeFileSync(`compositions/${id}.html`, sub(id, css, body, script))
-const logoSvg = p => `<svg class="logo" viewBox="0 0 88 88" fill="none"><circle cx="44" cy="44" r="18" fill="rgba(96,165,250,.14)"/><g id="${p}-giro"><circle id="${p}-arco" cx="44" cy="44" r="32" stroke-width="3" stroke="#60A5FA" stroke-linecap="round" stroke-dasharray="151 50" transform="rotate(-90 44 44)"/><circle cx="44" cy="12" r="9" fill="rgba(59,130,246,.3)"/><circle id="${p}-sat" cx="44" cy="12" r="5.5" fill="#3B82F6"/></g><circle id="${p}-hub" cx="44" cy="44" r="10" fill="#FFFFFF"/></svg>`
+// Logo REAL de Órbita (design-system/components/OrbitaLogo.tsx): el planeta con su anillo COMPLETO y el satélite
+// dando la vuelta. No usar el arco abierto del loader (es una animación de carga, no el logo).
+const logoSvg = p => `<svg class="logo" viewBox="0 0 88 88" fill="none"><circle cx="44" cy="44" r="24" fill="rgba(59,130,246,.22)"/><circle id="${p}-anillo" cx="44" cy="44" r="36" stroke-width="2.6" stroke="rgba(96,165,250,.6)" stroke-dasharray="226.2 0" transform="rotate(-90 44 44)"/><g id="${p}-giro"><circle cx="44" cy="8" r="10" fill="rgba(147,197,253,.28)"/><circle id="${p}-sat" cx="44" cy="8" r="6.4" fill="#93C5FD"/></g><circle id="${p}-hub" cx="44" cy="44" r="12.7" fill="#3B82F6"/></svg>`
 const logoMotion = (p, t0, giro) => `
 tl.fromTo('#${p}-hub', { scale: 0, svgOrigin: '44 44' }, { scale: 1, svgOrigin: '44 44', duration: .55, ease: 'back.out(2.2)' }, ${t0});
-tl.fromTo('#${p}-arco', { strokeDasharray: '0 201' }, { strokeDasharray: '151 50', duration: .75, ease: E.o }, ${t0 + .07});
+tl.fromTo('#${p}-anillo', { strokeDasharray: '0 226.2' }, { strokeDasharray: '226.2 0', duration: .75, ease: E.o }, ${t0 + .07});
 tl.fromTo('#${p}-giro', { rotation: 0, svgOrigin: '44 44' }, { rotation: ${giro.rot}, svgOrigin: '44 44', duration: ${giro.dur}, ease: '${giro.ease}' }, ${t0 + .07});
-tl.fromTo('#${p}-sat', { scale: 0, svgOrigin: '44 12' }, { scale: 1, svgOrigin: '44 12', duration: .4, ease: 'back.out(2)' }, ${t0 + .3});`
+tl.fromTo('#${p}-sat', { scale: 0, svgOrigin: '44 8' }, { scale: 1, svgOrigin: '44 8', duration: .4, ease: 'back.out(2)' }, ${t0 + .3});`
 
 // ── fondo: azul marino + halos + anillos orbitales con satélites ───────────
 escribir('fondo', `

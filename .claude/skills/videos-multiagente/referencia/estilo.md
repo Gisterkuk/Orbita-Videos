@@ -27,11 +27,14 @@ simulada**, como una app abierta en un escritorio, apoyada sobre un fondo de mar
 - La escena se dibuja en **canvas con posición subpíxel**: nunca con transformaciones
   CSS (redondean a píxel entero y el zoom "tiembla").
 
-## Intro (3,6 s) — el logo del loader
-Recrea `apps/web/src/components/PageLoader.tsx` en grande (viewBox 88 → 220 px), sobre blanco con un halo azul suave:
-1. 0,00–0,55 s: aparece el **centro** (`#0F172A`, r 10) con rebote, y su halo (r 18).
-2. 0,12–0,85 s: se dibuja el **arco** (r 32, trazo 3, `#3B82F6`, guiones 151/50) mientras gira y acelera hasta 1 vuelta/s.
-3. 0,35–0,70 s: aparece el **satélite** (`#2563EB`, r 5,5, halo r 9) en la punta del arco.
+## Intro (3,6 s) — el logo REAL de Órbita
+**Regla (2026-10-17, pedida por la persona): el logo de los videos es el real, con el anillo COMPLETO.** Sale de
+`apps/web/src/design-system/components/OrbitaLogo.tsx`: el planeta con su anillo y el satélite dando la vuelta. El arco
+abierto de `PageLoader.tsx` es una animación de carga, **no** el logo: no se usa (un test lo prohíbe: `herramientas/test/logo.test.mjs`).
+Se dibuja en grande (viewBox 88 → 220 px), sobre blanco con un halo azul suave:
+1. 0,00–0,55 s: aparece el **planeta** (`#3B82F6`, r 12,7) con rebote, y su halo (r 24).
+2. 0,12–0,85 s: se dibuja el **anillo** (r 36, trazo 2,6, azul 55 %) hasta cerrar el círculo completo (guiones 226,2/0).
+3. 0,35–0,70 s: aparece el **satélite** (`#93C5FD`, r 6,4, halo r 10) sobre el anillo, y gira alrededor del planeta (hasta 1 vuelta/s).
 4. Desde 0,55 s: dos **anillos pulsantes** (2 s, el segundo desfasado 0,75 s).
 5. 0,62 s: "**Órbita**" (Geist 700, 56 px) sube con fundido; 1,0 s: el título del video (Sora 600, 46 px), p. ej. "Cómo cargar un producto".
 6. 2,05–2,6 s: el logo se achica y se va; 2,25–3,25 s: un **círculo se abre desde el centro del logo** y revela el fondo de marca.

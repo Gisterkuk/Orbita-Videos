@@ -37,7 +37,7 @@ canvas{position:absolute;left:0;top:0}
 <body>
 <div id="stage">
   <canvas id="c"></canvas>
-  <div id="marca" class="tx"><svg viewBox="0 0 88 88" fill="none"><circle cx="44" cy="44" r="32" stroke="#60A5FA" stroke-width="5" stroke-linecap="round" stroke-dasharray="151 50" transform="rotate(-50 44 44)"/><circle cx="44" cy="44" r="11" fill="#fff"/><circle cx="66" cy="20" r="6.5" fill="#3B82F6"/></svg><span>Órbita</span></div>
+  <div id="marca" class="tx"><svg viewBox="0 0 88 88" fill="none"><circle cx="44" cy="44" r="36" stroke="#60A5FA" stroke-opacity=".6" stroke-width="5"/><circle cx="44" cy="44" r="12.7" fill="#3B82F6"/><circle cx="44" cy="8" r="6.4" fill="#93C5FD"/></svg><span>Órbita</span></div>
   <div id="chip" class="tx"></div>
   <div id="gancho" class="tx"></div>
   <div id="rubro" class="tx"></div>
@@ -48,13 +48,13 @@ canvas{position:absolute;left:0;top:0}
       <div class="ring" id="ring1"></div>
       <div class="ring" id="ring2"></div>
       <svg id="logoSpin" viewBox="0 0 88 88" fill="none">
-        <circle id="hubHalo" cx="44" cy="44" r="18" fill="rgba(59,130,246,.10)"/>
+        <circle id="hubHalo" cx="44" cy="44" r="24" fill="rgba(59,130,246,.22)"/>
+        <circle id="arc" cx="44" cy="44" r="36" stroke-width="2.6" stroke="rgba(59,130,246,.55)" stroke-dasharray="226.2 0" transform="rotate(-90 44 44)"/>
         <g id="spinG">
-          <circle id="arc" cx="44" cy="44" r="32" stroke-width="3" stroke="#3B82F6" stroke-linecap="round" stroke-dasharray="151 50" transform="rotate(-90 44 44)"/>
-          <circle id="satHalo" cx="44" cy="12" r="9" fill="rgba(37,99,235,.22)"/>
-          <circle id="sat" cx="44" cy="12" r="5.5" fill="#2563EB"/>
+          <circle id="satHalo" cx="44" cy="8" r="10" fill="rgba(147,197,253,.28)"/>
+          <circle id="sat" cx="44" cy="8" r="6.4" fill="#93C5FD"/>
         </g>
-        <circle id="hub" cx="44" cy="44" r="10" fill="#0F172A"/>
+        <circle id="hub" cx="44" cy="44" r="12.7" fill="#3B82F6"/>
       </svg>
     </div>
     <div id="endT"></div>
@@ -507,13 +507,13 @@ function dibujarTextos(t) {
 // ── logo del loader (cierre) ──────────────────────────────────────────────
 function drawLogo(a, cy, alpha) {
   const L = $('logo'); L.style.top = cy + 'px'; L.style.opacity = alpha
-  $('hub').setAttribute('r', (10 * spring(prog(a, 0, .55))).toFixed(3))
-  $('hubHalo').setAttribute('r', (18 * spring(prog(a, .08, .65))).toFixed(3))
-  const arcU = eo(prog(a, .12, .85)), C = 2 * Math.PI * 32
-  $('arc').setAttribute('stroke-dasharray', `${(151 * arcU).toFixed(2)} ${(C - 151 * arcU).toFixed(2)}`)
+  $('hub').setAttribute('r', (12.7 * spring(prog(a, 0, .55))).toFixed(3))
+  $('hubHalo').setAttribute('r', (24 * spring(prog(a, .08, .65))).toFixed(3))
+  const arcU = eo(prog(a, .12, .85)), C = 2 * Math.PI * 36
+  $('arc').setAttribute('stroke-dasharray', `${(C * arcU).toFixed(2)} ${(C - C * arcU).toFixed(2)}`)
   $('arc').style.opacity = arcU > 0 ? 1 : 0
   const satU = eo(prog(a, .35, .7))
-  $('sat').setAttribute('r', (5.5 * satU).toFixed(3)); $('satHalo').setAttribute('r', (9 * satU).toFixed(3))
+  $('sat').setAttribute('r', (6.4 * satU).toFixed(3)); $('satHalo').setAttribute('r', (10 * satU).toFixed(3))
   const ang = (a < .9 ? 360 * (a * a / 1.8) : 360 * (.45 + (a - .9))) % 360
   $('spinG').setAttribute('transform', `rotate(${ang.toFixed(2)} 44 44)`)
   const on = prog(a, .55, 1)
