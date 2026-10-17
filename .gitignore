@@ -19,3 +19,5 @@ marketing/**/*.jpeg
 marketing/**/*.png
 marketing/**/*.glb
 *.log
+# configuración local de previews (rutas de esta máquina)
+.claude/launch.json
