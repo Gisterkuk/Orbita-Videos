@@ -31,14 +31,23 @@ escribir cualquier guion o texto**.
    con todas sus reglas (contraseñas, perfil persistente único, ensayo antes de grabar, aprobación
    del guion antes de la toma real). No reinventar herramientas.
 7. **Nunca commitear** videos ni audio (ya están en `.gitignore`). Ni subirlos a ningún lado
-   sin que lo pida la persona.
+   sin que lo pida la persona. **Única excepción:** la cola de aprobación de Órbita. Si la persona pide «generame N
+   videos», subirlos por el conector (`videos_pedir_subida` + `videos_registrar`) es justamente lo que pidió; ahí
+   quedan esperando que una persona los apruebe y **nunca los publicás vos** (skill `videos-cola`).
 8. **Antes de grabar**, confirmar con la persona: formato, guion, datos de ejemplo y música.
 9. Las entregas finales van a `videos/<tipo>/` con el nombre `AAAA-MM-DD_slug_formato.mp4`;
    la producción intermedia, a `~/orbita-videos/<slug>/` (fuera del repo).
 
+## Cómo está armado el sistema (leelo si es tu primera vez)
+
+Hay dos herramientas que trabajan juntas, con **un solo conector** de Claude («Órbita»): la **prospección** (encontrar y
+analizar tiendas de Instagram para contactar) y la **cola de videos** (reels generados en tu computadora y aprobados
+en el panel). Para qué sirven, cómo funcionan, cuánto cuestan y qué controles tienen: `docs/marketing/FLUJO-PROSPECCION-Y-VIDEOS.md` del repo de Órbita.
+Para producir videos para la cola: skill `videos-cola` (`.claude/skills/videos-cola/`).
+
 ## Skills útiles para esta área
 
-Ya disponibles en el repo o en la cuenta: `videos-tutoriales` (video con pantallas reales,
+Ya disponibles en el repo o en la cuenta: `videos-cola` (reels automáticos para la cola de aprobación), `videos-multiagente` (tutoriales y promos con agentes críticos), `videos-tutoriales` (video con pantallas reales,
 reels, promos), `brand` (voz y consistencia de marca), `banner-design` (banners y piezas
 estáticas), `design` (logos, identidad, fotos para redes), `slides` (presentaciones),
 `ui-ux-pro-max` (si la pieza es una página o un componente). Detalle en

@@ -16,7 +16,7 @@ azul de marca con anillos orbitales; arranca y cierra con el **logo del loader**
 cámara hace **zoom suave** a cada campo; un **cursor** dibujado con anillo en cada clic;
 **carteles numerados** por paso que no tapan los clics; **resaltados** para explicar
 bloques; **efectos de sonido** sintetizados; y opcionalmente **voz en off rioplatense**
-(Gemini TTS). La especificación completa está en `referencia/estilo.md`; todo ya está
+(ElevenLabs). La especificación completa está en `referencia/estilo.md`; todo ya está
 implementado en `herramientas/` y en el ejemplo `ejemplo-cargar-producto/`.
 
 **Principio:** no reinventar. Copiar el ejemplo, adaptarlo a la nueva operación y usar
@@ -28,7 +28,7 @@ transformaciones CSS para el zoom ni `mouse.wheel` para el scroll.
 1. **Contraseñas**: nunca escribirlas en producción, aunque las pasen. `herramientas/login.mjs` abre una ventana visible y **la persona** entra.
 2. **Sesión**: solo el perfil persistente `~/orbita-videos/perfil` (lo maneja `lib/sesion.mjs`). Nunca `storageState` ni copias de cookies (el refresh token rota y se revocan TODAS las sesiones). Un solo navegador con el perfil a la vez.
 3. **Datos de producción**: primero `ENSAYO=1` (bloquea escrituras). La toma real escribe solo dentro de la **autorización permanente** (`referencia/decisiones.md` §1: configuración reversible del demo, con copia previa y reversión al final); crear o borrar algo, solo con permiso explícito del pedido y por el panel. Informar ids creados/borrados y la IA consumida.
-4. **Claves** (Gemini u otras): pedir dónde están; no buscarlas en `.env` por tu cuenta.
+4. **Claves** (ElevenLabs, en la variable `ELEVEN_KEY`): las pasa la persona en esa sesión; no buscarlas en `.env` por tu cuenta ni imprimirlas.
 5. **Flujo real**: solo pantallas capturadas en vivo. Única excepción: el diálogo "Abrir" de Windows 11 (el headless no muestra el nativo) — avisarlo.
 6. **Antes de grabar**: ensayo limpio y guion aprobado por los críticos (o cerrado según `referencia/decisiones.md` §4). Estilo y datos de ejemplo salen de las decisiones por defecto; ya no se piden a la persona.
 
@@ -51,7 +51,7 @@ Con la autonomía de arriba, esta lista es lo que el director **resuelve solo** 
 - ¿Explicar campos opcionales con resaltados? ¿Pasos extra (p. ej. crear la categoría antes)?
 - ¿Hay funciones de un paquete pago en el flujo (ver `referencia/planes.md`)? El tutorial enseña el plan base completo; lo pago va al final como bonus marcado con llamado a la acción, y opcionalmente un corte corto aparte para marketing (`E.escribir({ nombre })`).
 - ¿Hay más de una forma de hacerlo dentro del mismo plan? Mostrar primero la rápida y separar con placas de capítulo (`E.capitulo`).
-- Versión sin voz, con voz o ambas; voz de hombre o mujer; dónde está la clave de Gemini.
+- Versión sin voz, con voz o ambas; voz de hombre o mujer; que `ELEVEN_KEY` esté puesta.
 El resto ya está decidido por `referencia/estilo.md` (formato, colores, cámara, sonido, ritmo): no volver a preguntarlo salvo que la persona quiera cambiarlo.
 
 ## Producción con agentes (tutoriales: el camino por defecto desde 2026-10-12)
@@ -79,8 +79,9 @@ Rutas relativas a la carpeta del video (`cd ~/orbita-videos/<slug>`), salvo `pre
 6. Toma real: `node grabar.mjs toma1` (+ toma corta de cierre si algo termina en segundo plano: `grabar-lista.mjs`).
 7. `node herramientas/scrolls.mjs toma1` → adaptar `editar.mjs` (clips, cámara, carteles, resaltados, sonidos propios) → `node editar.mjs` → `node herramientas/preview.mjs <t…>` hasta que cada cuadro clave esté bien.
 8. `node herramientas/sfx.mjs` → `node herramientas/render.mjs out/<slug>-sin-voz.mp4` → control de calidad (`referencia/calidad.md`).
-9. Voz: adaptar `guion.json` (una frase por paso, voseo, sin instrucciones de estilo) → `GEMINI_KEY_FILE=<ruta> node herramientas/tts.mjs` → `node herramientas/limpiar-voz.mjs` → `node editar.mjs --voz voz.json` → `node herramientas/sfx.mjs out/sfx-voz.json` → `node herramientas/mezclar-voz.mjs` → `TL=compose/tl-voz.json WAV=out/audio-voz.wav node herramientas/render.mjs out/<slug>-con-voz.mp4` → calidad.
+9. Voz: adaptar `guion.json` (una frase por paso, voseo, sin instrucciones de estilo) → `ELEVEN_KEY=<clave> node herramientas/tts.mjs` → `node herramientas/limpiar-voz.mjs` → `node editar.mjs --voz voz.json` → `node herramientas/sfx.mjs out/sfx-voz.json` → `node herramientas/mezclar-voz.mjs` → `TL=compose/tl-voz.json WAV=out/audio-voz.wav node herramientas/render.mjs out/<slug>-con-voz.mp4` → calidad.
 10. Copiar a `marketing/videos/<tipo>/` del repo (tutoriales, reels, youtube o anuncios; nombre `AAAA-MM-DD_slug_formato.mp4`; sin commitear, ya está en `.gitignore`), mandarlo con SendUserFile y reportar según `referencia/calidad.md`.
+11. Si el video es un TUTORIAL de la lista (o la persona pide dejarlo en la cola), subirlo por el conector de Órbita como tipo `TUTORIAL` con el campo `tutorial` del ítem de la lista y marcar antes el ítem como EN_PROCESO: ver `videos-cola` § Tutoriales (`tutoriales_listar`, `tutoriales_actualizar`, `videos_pedir_subida`, `videos_registrar`, `videos_avisar`). Es interno: no se publica en redes.
 
 Renders largos (~5 min) y tomas: en segundo plano. Nunca cortar con `| head` un script que escribe al final.
 
@@ -104,7 +105,7 @@ Preguntame lo que necesites antes de grabar.
 con el mismo estilo que el de "cargar producto". Empezá en <pantalla inicial> y terminá
 en <resultado / cómo lo ve el cliente>. Datos de ejemplo: <…>. En producción puede
 quedar creado <…> (o: grabalo en local). Explicá con resaltados <campos opcionales>.
-Quiero versión sin voz y con voz (hombre). La clave de Gemini está en <ruta>.
+Quiero versión sin voz y con voz (hombre). La clave de ElevenLabs ya está en `ELEVEN_KEY`.
 Preguntame lo que necesites antes de grabar.
 ```
 

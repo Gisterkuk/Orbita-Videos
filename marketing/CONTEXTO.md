@@ -3,7 +3,7 @@
 Resumen comercial para escribir guiones y textos sin tener que leer el código. **Puede quedar
 viejo**: ante la duda, verificá en las fuentes que se listan abajo y actualizá este archivo.
 
-_Última revisión: 2026-10-07._
+_Última revisión: 2026-10-14 (se quitó la etapa de piloto cerrado)._
 
 ## Qué es Órbita
 
@@ -42,24 +42,33 @@ entre otros (ver `RubrosCarousel.tsx`).
 - No usar datos reales de clientes/negocios: para pantallas usar la demo pública o un negocio
   de prueba, y con permiso.
 
-## Etapa actual: piloto en mercado cerrado (plan de marketing, agosto 2026)
+## Etapa actual: abierto al público
 
-Fuente: "PLAN INSTAGRAM ORBITA" de marketing (agosto 2026).
+Órbita **ya no está en prueba piloto cerrada**: se puede comunicar abiertamente, llegar a negocios nuevos y salir a
+las redes con reels, TikToks y anuncios. Esto reemplaza al plan de agosto de 2026 (piloto con tarjeta a candidatos,
+Instagram como «mini landing» con carruseles y **sin** campaña en redes), que **ya no rige**.
 
-- **Hasta fin de 2026 Órbita está en prueba piloto** con los primeros negocios (Indecisas Clothes, Te
-  Falta Calle, GV Store y los que se sumen). El plan dice que **no hay campaña activa en redes**: el
-  Instagram (`@orbita.site`) se arma como "mini landing" para los candidatos que reciben la tarjeta, con
-  **carruseles, no reels**, para generar **confianza, no alcance**. Publicar reels o TikToks ahora es una
-  decisión del equipo que se aparta de ese plan: acordarla con marketing.
-- **Transparencia de etapa:** no aparentar comunidad, cifras, clientes ni casos que todavía no existen.
-  "Estamos construyendo Órbita" es parte de la identidad, no algo que se esconde.
-- **Firma:** "Tu negocio, en órbita." · "Hecho por emprendedores, para emprendedores." · "Mostrá,
-  organizá y entendé tu negocio". Nombre visible del perfil: "Órbita | Gestión para negocios".
-- **Narrativa aprobada:** tu negocio está disperso (WhatsApp, Instagram, Excel, notas) → perdés tiempo,
-  cometés errores, decidís con información incompleta → ¿y si todo estuviera en un solo lugar? → Órbita.
+Lo que sigue valiendo del plan anterior (es la identidad, no la etapa):
+
+- **Transparencia:** no aparentar comunidad, cifras, clientes ni casos que no existen. Un número, un cliente o un
+  testimonio solo se usa si es **real, está verificado y se puede mostrar** (un caso de cliente, con su permiso).
+  «Estamos construyendo Órbita» sigue siendo parte de la identidad: se puede decir sin esconderlo.
+- **Firma:** «Tu negocio, en órbita.» · «Hecho por emprendedores, para emprendedores.» · «Mostrá, organizá y
+  entendé tu negocio». Nombre visible del perfil: «Órbita | Gestión para negocios».
+- **Narrativa aprobada:** tu negocio está disperso (WhatsApp, Instagram, Excel, notas) → perdés tiempo, cometés
+  errores, decidís con información incompleta → ¿y si todo estuviera en un solo lugar? → Órbita.
 - **Equipo:** Mateo Rojas (CEO), Alan Vega (CTO), Alexander Ibarra (CPO).
-- **Sistema visual del plan:** azul oscuro de base, blanco para respirar, **celeste como acento**, órbitas
-  sutiles. (Los videos del hook usan coral para el satélite: a decidir si se alinea.)
+- **Sistema visual:** azul oscuro de base, blanco para respirar, **celeste como acento**, órbitas sutiles. (Los
+  videos del hook usan coral para el satélite: a decidir si se alinea.)
+
+Qué cambia en la práctica:
+
+- **Los reels y TikToks ya no necesitan una decisión aparte con marketing:** se pueden producir y publicar, siempre
+  con aprobación de una persona del equipo antes de que salga (ver `docs/marketing/FLUJO-PROSPECCION-Y-VIDEOS.md` del repo de Órbita).
+- Para **encontrar clientes** se usa la prospección del superadmin (Marketing → Prospección), que arma listas de
+  tiendas de Instagram y redacta borradores de mensajes que una persona revisa y manda. Nada se envía solo.
+- **No hay cifras de clientes, de ventas ni de crecimiento para citar** en una pieza salvo que alguien las verifique y
+  las pase por escrito. Ante la duda, no se pone.
 
 ## Identidad visual (resumen — detalle en [`marca/README.md`](marca/README.md))
 

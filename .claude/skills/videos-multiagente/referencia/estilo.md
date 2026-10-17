@@ -118,7 +118,7 @@ Puede haber varios diálogos en un video. Es la única pantalla no capturada en 
 Sin música. Pico normalizado a −4,5 dBFS en la versión sin voz (el AAC agrega ~2 dB de pico: así queda ≤ −1,5 dBFS en el mp4).
 
 ## Voz (versión narrada)
-- **Gemini Flash TTS estándar** (ni Lite ni Pro: buena calidad sin ser el más caro), voz **Achird** (hombre, cálida) salvo que pidan otra; `languageCode: es-AR`.
+- **ElevenLabs**, voz **`8mBRP99B2Ng2QwsJMFQl`** (la del equipo), modelo `eleven_v4`, tono original, salvo que pidan otra (`preferencias.md`).
 - Una frase por paso, en voseo, ≤ ~18 palabras, anclada a una marca de la toma; el editor **estira el paso** (pausa al final) si la frase no entra.
 - Mezcla: voz a −16 LUFS con compresión suave; efectos 6 dB abajo y con sidechain; resultado −14 a −16 LUFS, pico ≤ −1,5 dBFS. Los carteles se mantienen.
 - Costo de referencia: ~US$0,03 por narración de ~1:30 (Flash TTS a US$9/M tokens de audio, 25 tokens/s; verificar el precio vigente).

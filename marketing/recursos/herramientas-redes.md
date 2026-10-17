@@ -1,7 +1,7 @@
 # Herramientas open source de redes: qué nos sirve (relevado 2026-10-10)
 
 Relevamiento de los repos más populares de "social media" en GitHub, pensando en el marketing de
-Órbita **hoy**: etapa piloto (carruseles en Instagram, sin campaña de alcance; ver `../CONTEXTO.md`),
+Órbita **hoy**: ya abierto al público (ver `../CONTEXTO.md`; el plan de piloto de agosto ya no rige),
 un pipeline propio de video (HyperFrames + ElevenLabs) y la idea de producir contenido en lote.
 
 ## Resumen
@@ -34,7 +34,7 @@ lo usamos), `krillinai/OpenCreator` (traducción y voz de videos: ya lo cubrimos
   - **Autoalojado:** gratis (AGPL-3.0), pero hay que levantar Next.js + NestJS + PostgreSQL + Redis +
     Temporal + almacenamiento, y **crear y hacer aprobar apps propias en Meta y TikTok** para publicar,
     que es lo más trabajoso.
-- **Encaje con la etapa piloto:** sirve también para programar los carruseles del plan de marketing,
+- **Encaje:** sirve también para programar carruseles y otras piezas estáticas,
   no solo reels.
 
 ## Qué haría
@@ -46,3 +46,6 @@ lo usamos), `krillinai/OpenCreator` (traducción y voz de videos: ya lo cubrimos
 3. **Sherlock una vez**, para elegir un usuario de marca libre en todas las redes donde vayamos a estar.
 4. El agente de LangChain no hace falta: el mismo flujo (contenido → borrador → aprobación →
    programación) sale con Claude + Postiz, en nuestras redes y en castellano.
+
+> **Nota (2026-10-14):** la publicación ya no depende de una herramienta externa: Órbita tiene su propia cola de
+> aprobación y las integraciones de TikTok e Instagram en el superadmin. Ver `docs/marketing/FLUJO-PROSPECCION-Y-VIDEOS.md` del repo de Órbita.

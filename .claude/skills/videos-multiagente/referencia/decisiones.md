@@ -18,7 +18,7 @@ Dentro de estos topes el director actúa sin preguntar:
 ## 2. Lo que SIGUE siendo de la persona (el director frena y lo cuenta, no lo hace)
 - **Contraseñas y logins:** nunca se escriben; el login lo hace la persona (`herramientas/login.mjs`).
 - **Cualquier escritura fuera de §1**, y **todo lo irreversible** (borrar, publicar, mandar mails o mensajes reales, gastar cupo de Orbi, cobros reales).
-- **Claves** (Gemini u otras): no se buscan por cuenta propia.
+- **Claves** (ElevenLabs en `ELEVEN_KEY`, u otras): las pasa la persona; no se buscan por cuenta propia ni se imprimen.
 - **Lo que no se puede deshacer o toca a terceros** (conectar cuentas reales de Mercado Pago, comprar dominios, etc.).
 Cuando el director choca con una de estas, **no pregunta y se queda esperando**: resuelve por otro camino (recreación marcada, recorte del
 alcance) o deja el video listo hasta ahí y lo declara en el informe como "pendiente de la persona", con el comando exacto.
