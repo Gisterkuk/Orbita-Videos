@@ -51,4 +51,13 @@
 
 ## Patrones observados
 
-_Lo completa el análisis (paso 2): gancho, estructura, ritmo, texto en pantalla, sonido, cierre._
+Análisis completo: [`cosas-buenas/Dcn6EINyzaa.md`](../cosas-buenas/Dcn6EINyzaa.md).
+
+- Gancho de tres problemas en tres palabras (signals, tabs, thoughts), con la palabra clave cambiando en la misma posición.
+- Silencio de 1,1 s después del gancho y de 1,8 s antes de la pregunta: los giros respiran.
+- Problema en negro que se ramifica en íconos; la pregunta "What if it all connected?" lo cierra en un anillo.
+- Del oscuro al claro cuando entra la solución; un único acento azul (punto, anillo, botón, palabra clave).
+- Nombre de la marca solo y rodeado de aire; sin llamada a la acción hablada.
+- Tres bloques de beneficios de ~5 s, cada uno con la misma forma (pedir → resultado → corrección o conclusión).
+- Tríadas en la voz y en el cierre ("imagine, build, discover"); 1,9 palabras por segundo.
+- Es una pieza de concepto: no muestra pantallas reales del producto.

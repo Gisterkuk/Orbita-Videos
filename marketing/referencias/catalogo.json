@@ -134,5 +134,61 @@
         "hoja_06.png"
       ]
     }
+  },
+  {
+    "clave": "instagram:DeZocyFsOoc",
+    "url": "https://www.instagram.com/reel/DeZocyFsOoc/",
+    "nota": "referencia 4: pedida por el usuario para entender por qué funciona y cómo replicarlo",
+    "agregado": "2026-10-16",
+    "analisis": {
+      "id": "DeZocyFsOoc",
+      "titulo": "Video by elevenlabs",
+      "autor": "ElevenLabs",
+      "cuenta": "51315501951",
+      "seguidores": null,
+      "vistas": null,
+      "likes": 722,
+      "comentarios": 5,
+      "fecha": "2026-10-12",
+      "descripcion": "Video by elevenlabs",
+      "hashtags": [],
+      "url": "https://www.instagram.com/reel/DeZocyFsOoc/",
+      "plataforma": "Instagram",
+      "duracion": 67.2,
+      "resolucion": "1920x1080",
+      "fps": 30,
+      "audio": true,
+      "lufs": -14.1,
+      "cortes": [
+        4.47,
+        9,
+        10.63,
+        20.93,
+        25.73,
+        29.87,
+        35.37,
+        44.77,
+        48.5,
+        50.6,
+        56.17,
+        56.83
+      ],
+      "cortesPorSegundo": 0.18,
+      "primerCorte": 4.47,
+      "hojas": [
+        "hoja_01.png",
+        "hoja_02.png",
+        "hoja_03.png",
+        "hoja_04.png",
+        "hoja_05.png",
+        "hoja_06.png",
+        "hoja_07.png",
+        "hoja_08.png",
+        "hoja_09.png",
+        "hoja_10.png",
+        "hoja_11.png",
+        "hoja_12.png"
+      ]
+    }
   }
 ]
