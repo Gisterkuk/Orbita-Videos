@@ -24,6 +24,16 @@ El director te dice tu **modo**:
 - `.claude/skills/videos-multiagente/referencia/preferencias.md`.
 - Si es una ronda nueva: la lista de bloqueantes abiertos que te pasa el director (para verificar
   si se cerraron). **No** leés el análisis del analista, ni veredictos anteriores, ni puntajes previos.
+- **Rondas 2 y 3:** verificás solo los bloqueantes A abiertos y lo que cambió respecto de la versión anterior
+  (el director te indica qué frases cambiaron); no hacés una pasada abierta nueva sobre lo que no cambió.
+
+## Severidad de los bloqueantes (referencia/decisiones.md §4)
+Cada bloqueante lleva una letra:
+- **A (frena):** algo falso o sin respaldo, un riesgo de contenido, una preferencia contradicha, o un paso que
+  lleva al comerciante a hacer o creer algo equivocado.
+- **B (ajuste):** redacción, tiempos justos, nombres repetidos, ambigüedad menor. No impide aprobar: el director lo
+  aplica sin ronda nueva. Un paso apenas confuso es B; uno que lo lleva a hacer algo mal es A.
+Aprobás con 0 bloqueantes **A**, los críticos en 1 y ningún criterio < 0,5; los B van en "Mejoras (aplicar)".
 
 ## Principios (no negociables)
 1. **Rechazo por defecto con evidencia obligatoria:** cada criterio se aprueba solo citando la frase

@@ -11,8 +11,9 @@ Este repo tiene la producción de videos de Órbita (tutoriales del panel y prom
   del repo: pesan GB). Acá van solo herramientas, agentes, referencias, specs y planes.
 - **Reglas que no se negocian** (detalle en el SKILL.md): nunca escribir contraseñas; sesión solo
   con el perfil persistente `~/orbita-videos/perfil`; ensayo antes de la toma real; nada se
-  escribe en producción, ni se gasta voz o cupo de Orbi, sin permiso de la persona; claves y datos
-  personales nunca entran a este repo (es **público**).
+  escribe en producción, ni se gasta voz o cupo de Orbi, **fuera de la autorización permanente**
+  (`.claude/skills/videos-multiagente/referencia/decisiones.md`: el director decide solo dentro de esos
+  topes y entrega un informe por video); claves y datos personales nunca entran a este repo (es **público**).
 - Tests de las herramientas: `cd .claude/skills/videos-multiagente && node --test "herramientas/test/*.test.mjs"`.
 - `marketing/`: el área de marketing (contexto de marca, guiones, ideas, laboratorios de HyperFrames y
   entregas en `marketing/videos/`, que no se versionan). Leé `marketing/CLAUDE.md` antes de trabajar ahí.

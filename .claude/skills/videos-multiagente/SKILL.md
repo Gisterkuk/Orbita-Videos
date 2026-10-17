@@ -27,12 +27,24 @@ transformaciones CSS para el zoom ni `mouse.wheel` para el scroll.
 ## Reglas que no se negocian
 1. **Contraseñas**: nunca escribirlas en producción, aunque las pasen. `herramientas/login.mjs` abre una ventana visible y **la persona** entra.
 2. **Sesión**: solo el perfil persistente `~/orbita-videos/perfil` (lo maneja `lib/sesion.mjs`). Nunca `storageState` ni copias de cookies (el refresh token rota y se revocan TODAS las sesiones). Un solo navegador con el perfil a la vez.
-3. **Datos de producción**: primero `ENSAYO=1` (bloquea escrituras). La toma real crea solo lo que la persona aprobó; borrar algo, solo con su permiso explícito y por el panel. Informar ids creados/borrados y la IA consumida.
+3. **Datos de producción**: primero `ENSAYO=1` (bloquea escrituras). La toma real escribe solo dentro de la **autorización permanente** (`referencia/decisiones.md` §1: configuración reversible del demo, con copia previa y reversión al final); crear o borrar algo, solo con permiso explícito del pedido y por el panel. Informar ids creados/borrados y la IA consumida.
 4. **Claves** (Gemini u otras): pedir dónde están; no buscarlas en `.env` por tu cuenta.
 5. **Flujo real**: solo pantallas capturadas en vivo. Única excepción: el diálogo "Abrir" de Windows 11 (el headless no muestra el nativo) — avisarlo.
-6. **Aprobación antes de grabar**: estilo, guion de pasos y datos de ejemplo confirmados.
+6. **Antes de grabar**: ensayo limpio y guion aprobado por los críticos (o cerrado según `referencia/decisiones.md` §4). Estilo y datos de ejemplo salen de las decisiones por defecto; ya no se piden a la persona.
 
-## Preguntas antes de empezar (una ronda, con opciones)
+## Autonomía (desde 2026-10-14)
+La persona no pilotea: ve **resultados** y juzga desde ahí. El director **no pregunta**; decide con
+`referencia/decisiones.md` (autorización permanente, decisiones por defecto, severidad de bloqueantes) y entrega
+un solo mensaje por video con el `produccion/informe.md`. Solo se frena (y se declara "pendiente de la
+persona") ante lo que esa página deja como suyo: contraseñas, escrituras fuera de tope, irreversible, terceros.
+
+**Indicaciones de la persona:** desde el monitor de agentes la persona puede destrabar un video dejando una
+indicación en `produccion/indicaciones.md`. Leelo **antes de cada ronda y al retomar**; aplicá las que digan
+`pendiente` y cambiá su título a `aplicada` (o `no aplicada: motivo`). Mandan sobre las decisiones por defecto, no sobre
+las reglas que no se negocian ni los topes de `decisiones.md`.
+
+## Preguntas antes de empezar (solo si el pedido no lo responde y `referencia/decisiones.md` tampoco)
+Con la autonomía de arriba, esta lista es lo que el director **resuelve solo** (si el pedido y las decisiones por defecto no lo cubren, elige lo más simple y lo anota en el informe). Solo se pregunta lo que toque lo que la persona se reservó (§2 de `decisiones.md`).
 - Operación exacta y punto de partida/final (¿termina mostrando la tienda?).
 - Datos de ejemplo (nombres, precios, archivos a subir: ¿los pasa la persona? ¿derechos?).
 - Qué queda creado en producción y qué hacer después (dejar, despublicar, borrar) — o grabar en local.

@@ -60,3 +60,8 @@ algo de un video, el director lo agrega en el **Historial** (con fecha y motivo)
   en producción); un aviso que se nombra se muestra real o la frase sale. Datos reales del negocio (miembros, dueño,
   pedidos viejos) se **desenfocan** en vez de regrabar. Ante detalles de encuadre después de 3 rondas, la persona prefirió
   **cerrar y renderizar** antes que otra vuelta. Agentes en **Sonnet con esfuerzo medio** para ahorrar tokens.
+- **2026-10-14** — "Configurar cómo cobrás": las preguntas del director (cuenta de Mercado Pago, producto del carrito,
+  tope de rondas) y las rondas de jueces que se contradecían la frenaron varios días. La persona quiere **salir del asiento
+  del piloto y juzgar solo los resultados**: autorización permanente, decisiones por defecto y rondas con severidad en
+  `referencia/decisiones.md`.
+- **2026-10-17** — **Logo:** en los videos va el logo **real** de Órbita (`OrbitaLogo.tsx`: planeta con su anillo **completo** y el satélite dando la vuelta), nunca el arco abierto del loader. El director lo verifica en cada borrador (cuadros de la apertura y del cierre). Regla en `estilo.md` § Intro y test en `herramientas/test/logo.test.mjs`.
